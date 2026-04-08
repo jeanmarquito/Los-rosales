@@ -1,0 +1,2199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cabaña Los Rosales - Sistema Ganadero</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --verde:#1a6b3a;--verde-claro:#2d9e57;--verde-oscuro:#0f3d21;
+  --dorado:#c8a84b;--dorado-claro:#e8c96a;--crema:#f4f6f3;
+  --gris:#6c757d;--rojo:#c0392b;--azul:#2471a3;
+  --sidebar-w:240px;--topbar-h:60px;
+  --sombra:0 2px 16px rgba(0,0,0,.10);--radio:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Source Sans 3',sans-serif;background:var(--crema);color:#2c2c2c;min-height:100vh}
+
+
+/* ── LOGIN SCREEN ── */
+#login-screen{
+  position:fixed;inset:0;z-index:10000;
+  background:linear-gradient(135deg,#0f3d21 0%,#1a6b3a 50%,#0d2e17 100%);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.login-card{
+  background:white;border-radius:16px;padding:40px 36px;
+  width:100%;max-width:400px;box-shadow:0 30px 80px rgba(0,0,0,.4);
+}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-logo h1{font-family:'Oswald',sans-serif;font-size:1.5rem;color:var(--verde-oscuro);letter-spacing:1px;margin-top:8px}
+.login-logo small{color:var(--gris);font-size:.8rem}
+.login-tabs{display:flex;border-bottom:2px solid #eee;margin-bottom:22px}
+.login-tab{flex:1;padding:10px;text-align:center;cursor:pointer;font-weight:700;font-size:.86rem;color:var(--gris);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s}
+.login-tab.active{color:var(--verde);border-bottom-color:var(--verde)}
+.login-field{margin-bottom:14px}
+.login-field label{display:block;font-size:.75rem;font-weight:700;color:var(--verde-oscuro);text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px}
+.login-field input{width:100%;padding:11px 14px;border:2px solid #e5e7eb;border-radius:8px;font-family:'Source Sans 3',sans-serif;font-size:.92rem;outline:none;transition:border-color .2s}
+.login-field input:focus{border-color:var(--verde-claro);box-shadow:0 0 0 3px rgba(45,158,87,.12)}
+.btn-login{width:100%;padding:12px;background:var(--verde);color:white;border:none;border-radius:8px;font-family:'Source Sans 3',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;transition:background .2s;margin-bottom:10px}
+.btn-login:hover{background:var(--verde-oscuro)}
+.btn-google{width:100%;padding:11px;background:white;color:#374151;border:2px solid #e5e7eb;border-radius:8px;font-family:'Source Sans 3',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn-google:hover{border-color:#4285f4;color:#4285f4}
+.login-error{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;padding:9px 12px;border-radius:7px;font-size:.82rem;margin-bottom:12px;display:none}
+.login-ok{background:#dcfce7;color:#166534;border:1px solid #bbf7d0;padding:9px 12px;border-radius:7px;font-size:.82rem;margin-bottom:12px;display:none}
+.login-divider{text-align:center;color:#9ca3af;font-size:.78rem;margin:12px 0;position:relative}
+.login-divider::before,.login-divider::after{content:'';position:absolute;top:50%;width:42%;height:1px;background:#e5e7eb}
+.login-divider::before{left:0}.login-divider::after{right:0}
+/* App user bar */
+#user-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#user-email-display{font-size:.78rem;color:rgba(255,255,255,.8);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btn-logout{padding:7px 14px;background:#dc2626;color:white;border:none;border-radius:6px;cursor:pointer;font-size:.78rem;font-weight:700;font-family:'Source Sans 3',sans-serif;transition:all .2s;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.btn-logout:hover{background:#b91c1c;transform:translateY(-1px)}
+/* Wrap app content */
+#app-wrapper{display:none;flex-direction:column;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:linear-gradient(180deg,var(--verde-oscuro) 0%,#163a20 60%,#0d2e17 100%);display:flex;flex-direction:column;z-index:200;transition:transform .3s ease;box-shadow:4px 0 20px rgba(0,0,0,.25)}
+.sidebar-logo{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:12px}
+.sidebar-logo .ico{font-size:2rem}
+.sidebar-logo .txt h2{font-family:'Oswald',sans-serif;color:var(--dorado-claro);font-size:1.05rem;letter-spacing:1px;line-height:1.2}
+.sidebar-logo .txt small{color:rgba(255,255,255,.5);font-size:.68rem}
+.sidebar-tc{margin:14px 14px 0;background:rgba(200,168,75,.13);border:1px solid rgba(200,168,75,.35);border-radius:8px;padding:10px 12px}
+.sidebar-tc label{display:block;font-size:.65rem;color:var(--dorado-claro);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.tc-row{display:flex;align-items:center;gap:6px}
+.tc-row input{width:72px;padding:5px 8px;border:1.5px solid var(--dorado);border-radius:6px;font-size:.88rem;font-weight:700;text-align:center;color:var(--verde-oscuro);background:white}
+.tc-row span{color:var(--dorado-claro);font-size:.8rem;font-weight:600}
+.sidebar-nav{flex:1;padding:16px 10px;overflow-y:auto}
+.nav-section-label{font-size:.6rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.3);padding:8px 10px 4px;margin-top:6px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,.72);font-size:.88rem;transition:all .2s;margin-bottom:2px;border:none;background:transparent;width:100%;text-align:left;font-family:'Source Sans 3',sans-serif}
+.nav-item:hover{background:rgba(255,255,255,.08);color:white}
+.nav-item.active{background:var(--dorado);color:var(--verde-oscuro);font-weight:700;box-shadow:0 3px 12px rgba(200,168,75,.4)}
+.nav-item .ni-icon{font-size:1.1rem;width:22px;text-align:center;flex-shrink:0}
+.ni-badge{margin-left:auto;background:rgba(255,255,255,.2);color:white;font-size:.65rem;padding:1px 7px;border-radius:10px;font-weight:700}
+.nav-item.active .ni-badge{background:rgba(15,61,33,.2);color:var(--verde-oscuro)}
+.sidebar-footer{padding:14px;border-top:1px solid rgba(255,255,255,.07);font-size:.65rem;color:rgba(255,255,255,.3);text-align:center;line-height:1.6}
+
+/* TOPBAR */
+.topbar{position:fixed;top:0;left:var(--sidebar-w);right:0;height:var(--topbar-h);background:white;box-shadow:0 2px 10px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:100}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.hamburger{display:none;background:none;border:none;cursor:pointer;flex-direction:column;gap:5px;padding:4px}
+.hamburger span{display:block;width:22px;height:2px;background:var(--verde-oscuro);border-radius:2px}
+.page-title{font-family:'Oswald',sans-serif;font-size:1.2rem;color:var(--verde-oscuro);letter-spacing:.5px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.chip{background:var(--crema);border:1px solid #ddd;border-radius:20px;padding:5px 14px;font-size:.78rem;color:var(--gris)}
+.chip strong{color:var(--verde-oscuro)}
+
+/* MAIN */
+.main-content{margin-left:var(--sidebar-w);margin-top:var(--topbar-h);padding:24px;min-height:calc(100vh - var(--topbar-h))}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:150}
+.overlay.show{display:block}
+
+/* SECCIONES */
+.seccion{display:none;animation:fadeIn .25s ease}
+.seccion.activa{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* CARDS */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;margin-bottom:24px}
+.card-stat{background:white;border-radius:var(--radio);padding:18px 20px;box-shadow:var(--sombra);border-left:4px solid var(--verde);transition:transform .2s,box-shadow .2s}
+.card-stat:hover{transform:translateY(-3px);box-shadow:0 6px 24px rgba(0,0,0,.13)}
+.card-stat.dorado{border-left-color:var(--dorado)}
+.card-stat.rojo{border-left-color:var(--rojo)}
+.card-stat.azul{border-left-color:var(--azul)}
+.card-stat label{font-size:.7rem;color:var(--gris);text-transform:uppercase;letter-spacing:.5px}
+.card-stat .valor{font-family:'Oswald',sans-serif;font-size:1.55rem;color:var(--verde-oscuro);margin:4px 0 2px}
+.card-stat .sub{font-size:.75rem;color:var(--gris)}
+.card-icon{float:right;font-size:1.8rem;opacity:.18;margin-top:-4px}
+
+/* PANEL */
+.panel{background:white;border-radius:var(--radio);box-shadow:var(--sombra);margin-bottom:20px;overflow:visible}.panel>.panel-header{border-radius:var(--radio) var(--radio) 0 0}
+.panel-header{background:linear-gradient(90deg,var(--verde-oscuro),var(--verde));color:white;padding:14px 20px;display:flex;align-items:center;gap:10px;justify-content:space-between}
+.panel-header h3{font-family:'Oswald',sans-serif;font-size:1rem;letter-spacing:.5px}
+.panel-body{padding:20px}
+
+/* FORM */
+.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:14px;margin-bottom:14px}
+.form-group label{display:block;font-size:.72rem;font-weight:700;color:var(--verde-oscuro);margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px}
+.form-group input,.form-group select{width:100%;padding:9px 12px;border:1.5px solid #ddd;border-radius:7px;font-family:'Source Sans 3',sans-serif;font-size:.88rem;transition:border-color .2s,box-shadow .2s;background:#fafafa;color:#2c2c2c}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:var(--verde-claro);background:white;box-shadow:0 0 0 3px rgba(45,158,87,.12)}
+.form-group input[readonly]{background:#f0f8ff;color:var(--azul);font-weight:600}
+.hint{font-size:.68rem;color:var(--gris);margin-top:3px}
+
+/* BOTONES */
+.btn{padding:9px 20px;border:none;border-radius:7px;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:.86rem;font-weight:700;transition:all .2s;display:inline-flex;align-items:center;gap:7px}
+.btn-primary{background:var(--verde);color:white}
+.btn-primary:hover{background:var(--verde-oscuro);transform:translateY(-1px)}
+.btn-dorado{background:var(--dorado);color:var(--verde-oscuro)}
+.btn-dorado:hover{background:var(--dorado-claro)}
+.btn-azul{background:var(--azul);color:white}
+.btn-azul:hover{background:#1a5276}
+.btn-danger{background:#fee2e2;color:var(--rojo);font-size:.75rem;padding:4px 10px;border:1px solid #fca5a5}
+.btn-danger:hover{background:var(--rojo);color:white}
+.btn-outline{background:transparent;border:2px solid var(--verde);color:var(--verde)}
+.btn-outline:hover{background:var(--verde);color:white}
+.btn-group{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+
+/* TABS */
+.tabs-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.tab-btn{padding:8px 18px;border-radius:7px;border:2px solid #ddd;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:.86rem;font-weight:700;background:transparent;color:var(--gris);transition:all .2s}
+.tab-btn.active-verde{background:var(--verde);color:white;border-color:var(--verde)}
+.tab-btn.active-dorado{background:var(--dorado);color:var(--verde-oscuro);border-color:var(--dorado)}
+.tab-btn.active-azul{background:var(--azul);color:white;border-color:var(--azul)}
+
+/* TABLA */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.83rem}
+thead tr{background:var(--verde-oscuro);color:white}
+thead th{padding:10px 12px;text-align:left;font-family:'Oswald',sans-serif;font-weight:400;letter-spacing:.5px;white-space:nowrap}
+tbody tr{border-bottom:1px solid #f0f0f0;transition:background .15s}
+tbody tr:hover{background:rgba(45,158,87,.04)}
+tbody td{padding:9px 12px;vertical-align:middle}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:.7rem;font-weight:700;text-transform:uppercase}
+.badge-m{background:#dcfce7;color:#166534}
+.badge-h{background:#dbeafe;color:#1e40af}
+.badge-ganancia{background:#dcfce7;color:#166534}
+.badge-perdida{background:#fee2e2;color:#991b1b}
+.badge-activo{background:#dcfce7;color:#166534}
+.badge-vendido{background:#e0e7ff;color:#3730a3}
+.badge-pendiente{background:#fff3cd;color:#856404}
+
+/* BARRAS */
+.barra-container{margin:8px 0}
+.barra-label{display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:4px}
+.barra-bg{background:#eee;border-radius:4px;height:14px;overflow:hidden}
+.barra-fill{height:100%;border-radius:4px;transition:width .7s ease;background:linear-gradient(90deg,var(--verde),var(--verde-claro))}
+.barra-fill.rojo{background:linear-gradient(90deg,#c0392b,#e74c3c)}
+
+/* ALERTA */
+.alerta{padding:11px 16px;border-radius:8px;margin-bottom:16px;font-size:.86rem;display:none}
+.alerta.ok{background:#dcfce7;color:#166534;border:1px solid #bbf7d0;display:flex;align-items:center;gap:8px}
+.alerta.error{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;display:flex;align-items:center;gap:8px}
+
+/* DASH GRID */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* INFO BOX */
+.info-box{background:var(--crema);border:1px solid #ddd;border-radius:8px;padding:14px;margin-bottom:16px}
+.info-box-verde{background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:14px;margin-bottom:16px}
+.info-box-yellow{background:#fffbeb;border:1px solid #fde68a;padding:8px 12px;border-radius:6px;font-size:.8rem;color:var(--gris);margin-bottom:14px}
+.info-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;font-size:.86rem}
+.info-field span{font-size:.7rem;color:var(--gris);display:block}
+.info-field strong{font-size:.9rem}
+
+/* ANIMAL CARD (bulto) */
+.animales-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin:12px 0}
+.animal-card{border:2px solid #ddd;border-radius:8px;padding:8px;text-align:center;cursor:pointer;transition:all .2s;background:white;user-select:none}
+.animal-card:hover{border-color:var(--verde-claro);background:#f0fdf4}
+.animal-card.selected{border-color:var(--verde);background:var(--verde);color:white}
+.animal-card .ac-cod{font-weight:700;font-size:.9rem}
+.animal-card .ac-peso{font-size:.7rem;opacity:.8}
+.animal-card .ac-sex{font-size:.65rem;margin-top:2px;opacity:.7}
+
+/* LISTA VENTA */
+.lista-venta{border:1px solid #ddd;border-radius:8px;overflow:hidden;margin:12px 0}
+.lista-venta table{margin:0}
+.lista-venta thead tr{background:#374151}
+.lista-venta-empty{padding:16px;text-align:center;color:var(--gris);font-size:.86rem}
+.total-box{background:var(--verde-oscuro);color:white;padding:12px 16px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;margin:8px 0}
+.total-box .t-label{font-size:.8rem;opacity:.8}
+.total-box .t-val{font-family:'Oswald',sans-serif;font-size:1.4rem;color:var(--dorado-claro)}
+.total-box .t-usd{font-size:.82rem;color:rgba(255,255,255,.7)}
+
+/* BUSCAR ANIMAL PESO */
+.buscar-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:10px;flex-wrap:wrap}
+.buscar-row input{flex:1;min-width:140px;padding:9px 12px;border:1.5px solid #ddd;border-radius:7px;font-family:'Source Sans 3',sans-serif;font-size:.88rem}
+
+/* PESAJE ANTERIOR */
+.peso-ant-box{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;margin-bottom:14px;display:none}
+.peso-ant-box .pa-title{font-size:.72rem;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
+.peso-ant-grid{display:flex;gap:20px;flex-wrap:wrap}
+.peso-ant-grid div span{font-size:.7rem;color:var(--gris);display:block}
+.peso-ant-grid div strong{font-size:.95rem}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .topbar{left:0}
+  .main-content{margin-left:0}
+  .hamburger{display:flex}
+  .dash-grid{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .cards-grid{grid-template-columns:1fr 1fr}
+  .main-content{padding:16px}
+  .form-row{grid-template-columns:1fr}
+  .panel-body{padding:14px}
+  .animales-grid{grid-template-columns:repeat(auto-fill,minmax(65px,1fr))}
+}
+</style>
+
+<!-- Firebase SDKs (ESM via CDN) -->
+<script type="module">
+import { initializeApp }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+         signOut, onAuthStateChanged, GoogleAuthProvider,
+         signInWithPopup, signInWithRedirect, getRedirectResult }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyDJnWQgA0pHuwFJhN0mrVVptrlNByCsJb8",
+  authDomain:        "los-rosales-c443c.firebaseapp.com",
+  projectId:         "los-rosales-c443c",
+  storageBucket:     "los-rosales-c443c.firebasestorage.app",
+  messagingSenderId: "120005061189",
+  appId:             "1:120005061189:web:09a71d6adffa9c44f4112c"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const dbf  = getFirestore(app);
+
+// Exponer globalmente para el script principal
+window._fbAuth = auth;
+window._fbDb   = dbf;
+window._fbFns  = {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
+  doc,
+  setDoc,
+  getDoc
+};
+
+// Manejar resultado de redirect de Google (GitHub Pages)
+getRedirectResult(auth).then(result => {
+  if (result && result.user) {
+    console.log('Google redirect login OK:', result.user.email);
+  }
+}).catch(err => {
+  if (err.code !== 'auth/no-current-user') {
+    console.warn('Redirect error:', err.message);
+    // Mostrar error en pantalla
+    setTimeout(()=>{
+      const el = document.getElementById('login-error');
+      if(el){ el.textContent = 'Error Google: ' + err.message; el.style.display='block'; }
+    }, 1000);
+  }
+});
+
+// Observer: controla qué pantalla mostrar
+onAuthStateChanged(auth, user => {
+  const loginScreen = document.getElementById('login-screen');
+  const appWrapper  = document.getElementById('app-wrapper');
+  const emailSpan   = document.getElementById('user-email-display');
+
+  if (user) {
+    window._fbUser = user;
+    if (loginScreen) loginScreen.style.display = 'none';
+    if (appWrapper)  appWrapper.style.display  = 'flex';
+    if (emailSpan)   emailSpan.textContent     = user.displayName || user.email;
+    if (typeof window._iniciarApp === 'function') window._iniciarApp(user.uid);
+  } else {
+    window._fbUser = null;
+    if (loginScreen) loginScreen.style.display = 'flex';
+    if (appWrapper)  appWrapper.style.display  = 'none';
+  }
+});
+</script>
+</head>
+<body>
+
+
+<!-- ═══════════════════════════════════════════
+     PANTALLA DE LOGIN
+═══════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div style="font-size:3rem">🐄</div>
+      <h1>CABAÑA LOS ROSALES</h1>
+      <small>Sistema de Gestión Ganadera · Bolivia</small>
+    </div>
+
+    <div class="login-tabs">
+      <div class="login-tab active" onclick="loginTab('ingresar',this)">Ingresar</div>
+      <div class="login-tab" onclick="loginTab('registrar',this)">Crear cuenta</div>
+    </div>
+
+    <div id="login-error" class="login-error"></div>
+    <div id="login-ok" class="login-ok"></div>
+
+    <div class="login-field">
+      <label>Correo electrónico</label>
+      <input type="email" id="login-email" placeholder="correo@ejemplo.com" onkeydown="if(event.key==='Enter') doLogin()">
+    </div>
+    <div class="login-field">
+      <label>Contraseña</label>
+      <input type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter') doLogin()">
+    </div>
+    <div class="login-field" id="login-pass2-wrap" style="display:none">
+      <label>Confirmar contraseña</label>
+      <input type="password" id="login-pass2" placeholder="Repita la contraseña">
+    </div>
+
+    <button class="btn-login" id="btn-login-action" onclick="doLogin()">Ingresar al sistema</button>
+
+    <div class="login-divider">o continúe con</div>
+    <button class="btn-google" onclick="doGoogleLogin()">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#4285F4" d="M44.5 20H24v8.5h11.8C34.1 33.7 29.6 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.8 0 20-7.8 20-21 0-1.3-.1-2.7-.5-4z"/></svg>
+      Continuar con Google
+    </button>
+
+    <div style="text-align:center;margin-top:16px;font-size:.75rem;color:var(--gris)">
+      Sus datos se guardan de forma segura en Firebase · Bolivia 🇧🇴
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     APLICACIÓN PRINCIPAL (oculta hasta login)
+═══════════════════════════════════════════ -->
+<div id="app-wrapper">
+<div class="overlay" id="overlay" onclick="cerrarSidebar()"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <span class="ico">🐄</span>
+    <div class="txt"><h2>CABAÑA<br>LOS ROSALES</h2><small>Sistema Ganadero · Bolivia</small></div>
+  </div>
+  <div class="sidebar-tc">
+    <label>🇧🇴 Tipo de Cambio Oficial</label>
+    <div class="tc-row">
+      <input type="number" id="tc-input" step="0.01" value="6.96" onchange="actualizarTC()">
+      <span>Bs / $</span>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Principal</div>
+    <button class="nav-item active" onclick="ir('dashboard',this)" data-title="Dashboard"><span class="ni-icon">📊</span> Dashboard</button>
+    <div class="nav-section-label">Gestión</div>
+    <button class="nav-item" onclick="ir('maternidad',this)" data-title="Maternidad / Partos"><span class="ni-icon">🐄</span> Maternidad<span class="ni-badge" id="nb-mat">0</span></button>
+    <button class="nav-item" onclick="ir('recria',this)" data-title="Recría"><span class="ni-icon">🐂</span> Recría<span class="ni-badge" id="nb-rec">0</span></button>
+    <button class="nav-item" onclick="ir('pesos',this)" data-title="Control de Peso"><span class="ni-icon">⚖️</span> Pesajes<span class="ni-badge" id="nb-pes">0</span></button>
+    <div class="nav-section-label">Finanzas</div>
+    <button class="nav-item" onclick="ir('gastos',this)" data-title="Registro de Gastos"><span class="ni-icon">💸</span> Gastos<span class="ni-badge" id="nb-gas">0</span></button>
+    <button class="nav-item" onclick="ir('ventas',this)" data-title="Registro de Ventas"><span class="ni-icon">📦</span> Ventas<span class="ni-badge" id="nb-ven">0</span></button>
+  </nav>
+  <div class="sidebar-footer">Datos guardados localmente<br>Cabaña Los Rosales · Bolivia 🇧🇴</div>
+</aside>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="hamburger" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
+    <span class="page-title" id="page-title">📊 Dashboard</span>
+  </div>
+  <div class="topbar-right">
+    <span class="chip">TC: <strong>Bs <span id="tc-display">6.96</span>/$</strong></span>
+    <span class="chip" id="chip-fecha"></span>
+    <div id="user-bar">
+      <span style="font-size:.7rem;color:rgba(255,255,255,.5)">👤</span>
+      <span id="user-email-display"></span>
+      <button class="btn-logout" onclick="doLogout()">⏻ Cerrar sesión</button>
+    </div>
+  </div>
+</header>
+
+<main class="main-content">
+
+<!-- ══════════════════════════════════════════════════
+     DASHBOARD
+══════════════════════════════════════════════════ -->
+<div id="s-dashboard" class="seccion activa">
+  <div class="cards-grid">
+    <div class="card-stat"><span class="card-icon">🐄</span><label>Total Animales</label><div class="valor" id="d-total">0</div><div class="sub">Registrados en sistema</div></div>
+    <div class="card-stat dorado"><span class="card-icon">🐂</span><label>En Recría</label><div class="valor" id="d-recria">0</div><div class="sub">Terneros activos</div></div>
+    <div class="card-stat azul"><span class="card-icon">💸</span><label>Total Gastos</label><div class="valor" id="d-gastos-bs">Bs 0</div><div class="sub" id="d-gastos-usd">$ 0.00</div></div>
+    <div class="card-stat azul"><span class="card-icon">📦</span><label>Total Ventas</label><div class="valor" id="d-ventas-bs">Bs 0</div><div class="sub" id="d-ventas-usd">$ 0.00</div></div>
+    <div class="card-stat" id="card-resultado"><span class="card-icon">📈</span><label>Resultado Neto</label><div class="valor" id="d-resultado-bs">Bs 0</div><div class="sub" id="d-resultado-usd">$ 0.00</div></div>
+    <div class="card-stat dorado"><span class="card-icon">⚖️</span><label>G/día Promedio</label><div class="valor" id="d-gpd">—</div><div class="sub">Ganancia diaria recría</div></div>
+  </div>
+  <div class="dash-grid">
+    <div class="panel"><div class="panel-header"><h3>⚖️ Últimos Pesajes</h3></div><div class="panel-body" id="dash-pesajes"><p style="color:var(--gris);font-size:.86rem">Sin pesajes.</p></div></div>
+    <div class="panel"><div class="panel-header"><h3>📈 Resultado por Animal</h3></div><div class="panel-body" id="dash-resultado-animales"><p style="color:var(--gris);font-size:.86rem">Sin ventas.</p></div></div>
+  </div>
+  <div class="panel"><div class="panel-header"><h3>💰 Resumen Financiero Bs / USD</h3></div><div class="panel-body" id="dash-financiero"><p style="color:var(--gris);font-size:.86rem">Sin datos.</p></div></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     MATERNIDAD
+══════════════════════════════════════════════════ -->
+<div id="s-maternidad" class="seccion">
+  <div class="tabs-bar">
+    <button class="tab-btn active-verde" onclick="tabMat('registro',this)">➕ Registrar Parto</button>
+    <button class="tab-btn" onclick="tabMat('destete',this)">🔄 Actualizar Peso Destete</button>
+    <button class="tab-btn" onclick="tabMat('excel',this)" style="border-color:#166534;color:#166534">📥 Importar Excel</button>
+  </div>
+
+  <div id="mat-panel-registro" class="panel">
+    <div class="panel-header"><h3>🐄 Nuevo Registro de Parto</h3></div>
+    <div class="panel-body">
+      <div id="alerta-mat" class="alerta"></div>
+      <div class="info-box-yellow">💡 El <strong>Peso al Destete</strong> es opcional — se registra ~8 meses después usando "Actualizar Peso Destete".</div>
+      <div class="form-row">
+        <div class="form-group"><label>Fecha de Parto</label><input type="date" id="m-fecha"></div>
+        <div class="form-group"><label>Cód. Madre</label><input type="text" id="m-madre" placeholder="MAD-001"></div>
+        <div class="form-group"><label>Cód. Padre / Toro</label><input type="text" id="m-padre" placeholder="PAD-050"></div>
+        <div class="form-group"><label>Cód. Cría</label><input type="text" id="m-cria" placeholder="50"></div>
+        <div class="form-group"><label>Sexo</label><select id="m-sexo"><option value="M">M - Macho</option><option value="H">H - Hembra</option></select></div>
+        <div class="form-group"><label>Raza</label><input type="text" id="m-raza" placeholder="Nelore"></div>
+        <div class="form-group"><label>Marca / Caravana</label><input type="text" id="m-marca" placeholder="LR-50"></div>
+        <div class="form-group"><label>Peso Nacido (kg)</label><input type="number" id="m-peso-nac" placeholder="0.0" step="0.1"></div>
+        <div class="form-group"><label>Peso Destete <span style="font-weight:400;color:var(--gris);font-size:.68rem">— opcional</span></label><input type="number" id="m-peso-des" placeholder="Vacío = pendiente" step="0.1"></div>
+        <div class="form-group"><label>Observaciones</label><input type="text" id="m-obs" placeholder="Notas..."></div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="agregarMaternidad()">➕ Registrar Parto</button>
+        <button class="btn btn-outline" onclick="exportarCSV('maternidad')">⬇️ CSV</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="mat-panel-destete" class="panel" style="display:none">
+    <div class="panel-header" style="background:linear-gradient(90deg,#7a5c1e,var(--dorado))"><h3>🔄 Actualizar Peso al Destete</h3></div>
+    <div class="panel-body">
+      <div id="alerta-dest" class="alerta"></div>
+      <div class="buscar-row">
+        <input type="text" id="dest-buscar" placeholder="Buscar por Cód. Cría o Caravana..." oninput="buscarParaDestete()">
+        <button class="btn btn-dorado" onclick="buscarParaDestete()">🔍 Buscar</button>
+      </div>
+      <div id="dest-resultado" style="display:none">
+        <div class="info-box-verde">
+          <div style="font-size:.72rem;color:var(--verde);font-weight:700;text-transform:uppercase;margin-bottom:8px">✅ Animal encontrado</div>
+          <div class="info-fields" id="dest-info"></div>
+        </div>
+        <div class="form-row" style="max-width:500px">
+          <div class="form-group"><label>Fecha de Destete</label><input type="date" id="dest-fecha"></div>
+          <div class="form-group"><label>Peso al Destete (kg)</label><input type="number" id="dest-peso" placeholder="0.0" step="0.1"></div>
+          <div class="form-group"><label>Observaciones</label><input type="text" id="dest-obs" placeholder="Notas..."></div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="guardarDestete()">💾 Guardar</button>
+          <button class="btn btn-outline" onclick="limpiarDestete()">✖ Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="mat-panel-excel" class="panel" style="display:none">
+    <div class="panel-header" style="background:linear-gradient(90deg,#166534,#22c55e)"><h3>📥 Importar desde Excel — Formato Cabaña Los Rosales</h3></div>
+    <div class="panel-body">
+      <div id="alerta-excel" class="alerta"></div>
+
+      <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:16px;margin-bottom:18px">
+        <div style="font-weight:700;color:#166534;font-size:.88rem;margin-bottom:10px">📋 Formato esperado del Excel:</div>
+        <div style="overflow-x:auto">
+          <table style="font-size:.78rem;border-collapse:collapse;min-width:600px">
+            <thead><tr style="background:#166534;color:white">
+              <th style="padding:6px 10px">FECHA</th><th style="padding:6px 10px">MADRE</th>
+              <th style="padding:6px 10px">PADRE</th><th style="padding:6px 10px">CRIA</th>
+              <th style="padding:6px 10px">SEXO</th><th style="padding:6px 10px">PESO</th>
+              <th style="padding:6px 10px">RAZA</th><th style="padding:6px 10px">MARCA</th>
+              <th style="padding:6px 10px">OBS</th>
+            </tr></thead>
+            <tbody><tr style="background:#dcfce7">
+              <td style="padding:5px 10px;border:1px solid #86efac">01/03/2024</td>
+              <td style="padding:5px 10px;border:1px solid #86efac">MAD-001</td>
+              <td style="padding:5px 10px;border:1px solid #86efac">PAD-050</td>
+              <td style="padding:5px 10px;border:1px solid #86efac">50</td>
+              <td style="padding:5px 10px;border:1px solid #86efac">M</td>
+              <td style="padding:5px 10px;border:1px solid #86efac">35</td>
+              <td style="padding:5px 10px;border:1px solid #86efac">Nelore</td>
+              <td style="padding:5px 10px;border:1px solid #86efac">LR-50</td>
+              <td style="padding:5px 10px;border:1px solid #86efac">Parto normal</td>
+            </tr></tbody>
+          </table>
+        </div>
+        <div style="margin-top:10px;font-size:.78rem;color:#166534">
+          ✅ Las columnas deben estar en la <strong>fila 2</strong> (igual que su planilla). La fila 1 es el título "Cabaña Los Rosales".<br>
+          ✅ FECHA puede ser texto (DD/MM/AAAA) o formato fecha de Excel.<br>
+          ✅ SEXO: M o H. PESO = peso al nacido (opcional).<br>
+          ✅ Las filas vacías se omiten automáticamente.
+        </div>
+      </div>
+
+      <!-- ZONA DRAG & DROP -->
+      <div id="excel-dropzone" style="border:3px dashed #86efac;border-radius:12px;padding:32px;text-align:center;cursor:pointer;background:white;transition:all .2s"
+        onclick="document.getElementById('excel-file-input').click()"
+        ondragover="event.preventDefault();this.style.background='#f0fdf4';this.style.borderColor='#166534'"
+        ondragleave="this.style.background='white';this.style.borderColor='#86efac'"
+        ondrop="handleExcelDrop(event)">
+        <div style="font-size:2.5rem;margin-bottom:8px">📂</div>
+        <div style="font-size:1rem;font-weight:700;color:#166534">Arrastrá tu archivo Excel aquí</div>
+        <div style="font-size:.82rem;color:var(--gris);margin-top:4px">o hacé clic para seleccionar</div>
+        <div style="font-size:.75rem;color:var(--gris);margin-top:6px">Formatos: .xlsx · .xls · .csv</div>
+      </div>
+      <input type="file" id="excel-file-input" accept=".xlsx,.xls,.csv" style="display:none">
+
+      <!-- PREVIEW -->
+      <div id="excel-preview" style="display:none;margin-top:18px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+          <div>
+            <strong style="font-size:.95rem;color:var(--verde-oscuro)">Vista previa de importación</strong>
+            <span id="excel-preview-count" style="margin-left:8px;background:#dcfce7;color:#166534;padding:2px 10px;border-radius:12px;font-size:.78rem;font-weight:700"></span>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span id="excel-ok-count" style="background:#dcfce7;color:#166534;padding:4px 12px;border-radius:8px;font-size:.78rem;font-weight:700"></span>
+            <span id="excel-dup-count" style="background:#fff3cd;color:#856404;padding:4px 12px;border-radius:8px;font-size:.78rem;font-weight:700"></span>
+            <span id="excel-err-count" style="background:#fee2e2;color:#991b1b;padding:4px 12px;border-radius:8px;font-size:.78rem;font-weight:700"></span>
+          </div>
+        </div>
+        <div class="table-wrap" style="max-height:350px;overflow-y:auto;border:1px solid #ddd;border-radius:8px">
+          <table>
+            <thead><tr><th>#</th><th>Fecha</th><th>Madre</th><th>Padre</th><th>Cría</th><th>Sexo</th><th>Peso</th><th>Raza</th><th>Marca</th><th>Obs</th><th>Estado</th></tr></thead>
+            <tbody id="tbody-excel-preview"></tbody>
+          </table>
+        </div>
+        <div class="btn-group" style="margin-top:14px">
+          <button class="btn btn-primary" id="btn-confirmar-excel" onclick="confirmarImportacion()">✅ Importar filas válidas</button>
+          <button class="btn btn-outline" onclick="cancelarImportacion()">✖ Cancelar</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-header"><h3>📋 Historial de Partos</h3><span id="cnt-mat" style="background:rgba(255,255,255,.2);padding:3px 12px;border-radius:12px;font-size:.78rem">0 registros</span></div>
+    <div class="panel-body">
+      <div class="table-wrap">
+        <table><thead><tr><th>Fecha</th><th>Madre</th><th>Padre</th><th>Cría</th><th>Sexo</th><th>Raza</th><th>Caravana</th><th>P.Nacido</th><th>P.Destete</th><th>F.Destete</th><th>Edad</th><th>Obs</th><th></th></tr></thead>
+        <tbody id="tbody-maternidad"><tr><td colspan="12" style="text-align:center;color:var(--gris);padding:20px">Sin registros</td></tr></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     RECRÍA
+══════════════════════════════════════════════════ -->
+<div id="s-recria" class="seccion">
+  <div class="tabs-bar">
+    <button class="tab-btn active-verde" onclick="tabRec('maternidad',this)">🐄 Desde Maternidad</button>
+    <button class="tab-btn" onclick="tabRec('comprado',this)">🛒 Animal Comprado</button>
+    <button class="tab-btn" onclick="tabRec('manual',this)">✏️ Manual</button>
+  </div>
+
+  <!-- DESDE MATERNIDAD -->
+  <div id="rec-panel-maternidad" class="panel">
+    <div class="panel-header"><h3>🐄 Ingresar a Recría — Desde Maternidad</h3></div>
+    <div class="panel-body">
+      <div id="alerta-rec-mat" class="alerta"></div>
+      <div class="buscar-row">
+        <input type="text" id="rec-buscar" placeholder="Buscar por Cód. Cría o Caravana..." oninput="buscarParaRecria()">
+        <button class="btn btn-primary" onclick="buscarParaRecria()">🔍 Buscar</button>
+      </div>
+      <div id="rec-mat-noencontrado" style="display:none;background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;padding:12px;font-size:.86rem;color:#991b1b;margin-bottom:10px">
+        ❌ No se encontró el animal. Use <strong>Manual</strong> o <strong>Animal Comprado</strong>.
+      </div>
+      <div id="rec-mat-resultado" style="display:none">
+        <div class="info-box-verde">
+          <div style="font-size:.72rem;color:var(--verde);font-weight:700;text-transform:uppercase;margin-bottom:8px">✅ Animal encontrado en Maternidad</div>
+          <div class="info-fields" id="rec-mat-info"></div>
+        </div>
+        <div class="form-row" style="max-width:500px">
+          <div class="form-group"><label>Fecha Ingreso Recría</label><input type="date" id="rm-fecha"></div>
+          <div class="form-group"><label>Peso Entrada (kg)</label><input type="number" id="rm-peso-ent" placeholder="= peso destete" step="0.1"></div>
+          <div class="form-group"><label>Observaciones</label><input type="text" id="rm-obs" placeholder="Notas..."></div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="ingresarDesdeMaternidad()">➕ Confirmar Ingreso</button>
+          <button class="btn btn-outline" onclick="limpiarBusquedaRec()">✖ Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANIMAL COMPRADO -->
+  <div id="rec-panel-comprado" class="panel" style="display:none">
+    <div class="panel-header" style="background:linear-gradient(90deg,#7a5c1e,var(--dorado))"><h3>🛒 Nuevo Animal Comprado / Externo</h3></div>
+    <div class="panel-body">
+      <div id="alerta-rec-comp" class="alerta"></div>
+      <div class="info-box-yellow">🛒 Los campos <strong>Proveedor, Raza, Edad, Peso y Precio</strong> se conservan al registrar para agilizar la carga de varios animales del mismo lote. Solo cambie la Caravana.</div>
+      <div class="form-row">
+        <div class="form-group"><label>Fecha Compra / Ingreso</label><input type="date" id="rc-fecha"></div>
+        <div class="form-group"><label>Caravana / Código</label><input type="text" id="rc-codigo" placeholder="LR-200"></div>
+        <div class="form-group"><label>Sexo</label><select id="rc-sexo"><option value="M">M - Macho</option><option value="H">H - Hembra</option></select></div>
+        <div class="form-group"><label>Raza</label><input type="text" id="rc-raza" placeholder="Nelore"></div>
+        <div class="form-group"><label>Edad aprox. (meses)</label><input type="number" id="rc-edad" placeholder="8"></div>
+        <div class="form-group"><label>Peso Entrada (kg)</label><input type="number" id="rc-peso" placeholder="0.0" step="0.1"></div>
+        <div class="form-group"><label>Precio Compra (Bs)</label><input type="number" id="rc-precio-bs" placeholder="0.00" step="0.01" oninput="syncCompra()"></div>
+        <div class="form-group"><label>Precio Compra (USD)</label><input type="number" id="rc-precio-usd" placeholder="Auto" readonly></div>
+        <div class="form-group"><label>Proveedor / Vendedor</label><input type="text" id="rc-proveedor" placeholder="Nombre..."></div>
+        <div class="form-group"><label>Observaciones</label><input type="text" id="rc-obs" placeholder="Notas..."></div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-dorado" onclick="agregarComprado()">🛒 Registrar y continuar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANUAL -->
+  <div id="rec-panel-manual" class="panel" style="display:none">
+    <div class="panel-header" style="background:linear-gradient(90deg,#1a3a6b,var(--azul))"><h3>✏️ Ingreso Manual a Recría</h3></div>
+    <div class="panel-body">
+      <div id="alerta-rec" class="alerta"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Fecha Ingreso</label><input type="date" id="r-fecha"></div>
+        <div class="form-group"><label>Cód. Animal</label><input type="text" id="r-codigo" placeholder="50"></div>
+        <div class="form-group"><label>Madre</label><input type="text" id="r-madre" placeholder="MAD-001"></div>
+        <div class="form-group"><label>Padre</label><input type="text" id="r-padre" placeholder="PAD-050"></div>
+        <div class="form-group"><label>Sexo</label><select id="r-sexo"><option value="M">M - Macho</option><option value="H">H - Hembra</option></select></div>
+        <div class="form-group"><label>Raza</label><input type="text" id="r-raza" placeholder="Nelore"></div>
+        <div class="form-group"><label>Marca / Caravana</label><input type="text" id="r-marca" placeholder="LR-50"></div>
+        <div class="form-group"><label>Peso Entrada (kg)</label><input type="number" id="r-peso-ent" placeholder="0.0" step="0.1"></div>
+        <div class="form-group"><label>Observaciones</label><input type="text" id="r-obs" placeholder="Notas..."></div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-azul" onclick="agregarRecria()">➕ Ingresar Animal</button>
+        <button class="btn btn-outline" onclick="exportarCSV('recria')">⬇️ CSV</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><h3>📋 Animales en Recría</h3><span id="cnt-rec" style="background:rgba(255,255,255,.2);padding:3px 12px;border-radius:12px;font-size:.78rem">0 animales</span></div>
+    <div class="panel-body">
+      <div class="table-wrap">
+        <table><thead><tr><th>Fecha</th><th>Código</th><th>Origen</th><th>Madre</th><th>Padre</th><th>Sexo</th><th>Raza</th><th>Caravana</th><th>P.Entrada</th><th>Últ.Peso</th><th>G/día</th><th>Días</th><th>Estado</th><th></th></tr></thead>
+        <tbody id="tbody-recria"><tr><td colspan="14" style="text-align:center;color:var(--gris);padding:20px">Sin registros</td></tr></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     PESAJES
+══════════════════════════════════════════════════ -->
+<div id="s-pesos" class="seccion">
+  <div class="panel">
+    <div class="panel-header"><h3>⚖️ Registrar Pesaje</h3></div>
+    <div class="panel-body">
+      <div id="alerta-pes" class="alerta"></div>
+
+      <!-- Caja info peso anterior -->
+      <div class="peso-ant-box" id="peso-ant-box">
+        <div class="pa-title">📋 Pesaje anterior de este animal</div>
+        <div class="peso-ant-grid" id="peso-ant-info"></div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Cód. Animal</label>
+          <input type="text" id="p-codigo" placeholder="Ej: 50" list="lista-animales" oninput="mostrarPesoAnterior()">
+          <datalist id="lista-animales"></datalist>
+        </div>
+        <div class="form-group"><label>Fecha Pesaje</label><input type="date" id="p-fecha" onchange="mostrarPesoAnterior()"></div>
+        <div class="form-group"><label>Peso (kg)</label><input type="number" id="p-peso" placeholder="0.0" step="0.1"></div>
+        <div class="form-group"><label>Observaciones</label><input type="text" id="p-obs" placeholder="Notas..."></div>
+      </div>
+      <div class="btn-group"><button class="btn btn-primary" onclick="agregarPesaje()">➕ Registrar Pesaje</button></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><h3>📋 Historial de Pesajes</h3></div>
+    <div class="panel-body">
+      <div class="table-wrap">
+        <table><thead><tr><th>Fecha</th><th>Código</th><th>Peso</th><th>Peso Anterior</th><th>Días entre pesajes</th><th>G/día</th><th>Obs</th><th></th></tr></thead>
+        <tbody id="tbody-pesos"><tr><td colspan="8" style="text-align:center;color:var(--gris);padding:20px">Sin registros</td></tr></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     GASTOS
+══════════════════════════════════════════════════ -->
+<div id="s-gastos" class="seccion">
+  <div class="panel">
+    <div class="panel-header"><h3>💸 Registrar Gasto</h3></div>
+    <div class="panel-body">
+      <div id="alerta-gas" class="alerta"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Fecha</label><input type="date" id="g-fecha"></div>
+        <div class="form-group"><label>Cód. Animal / LOTE</label><input type="text" id="g-codigo" placeholder="50 o LOTE" list="lista-animales2"><datalist id="lista-animales2"></datalist></div>
+        <div class="form-group"><label>Concepto</label>
+          <select id="g-concepto"><option>Alimento / Forraje</option><option>Veterinario / Sanidad</option><option>Vacuna</option><option>Vitaminas / Minerales</option><option>Transporte</option><option>Mano de Obra</option><option>Instalaciones</option><option>Compra animal</option><option>Otro</option></select>
+        </div>
+        <div class="form-group"><label>Detalle</label><input type="text" id="g-detalle" placeholder="Descripción..."></div>
+        <div class="form-group"><label>Monto en Bs</label><input type="number" id="g-monto-bs" placeholder="0.00" step="0.01" oninput="syncBS()"></div>
+        <div class="form-group"><label>Equivalente USD</label><input type="number" id="g-monto-usd" placeholder="Auto" readonly></div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="agregarGasto()">➕ Registrar Gasto</button>
+        <button class="btn btn-outline" onclick="exportarCSV('gastos')">⬇️ CSV</button>
+      </div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-header"><h3>📋 Registro de Gastos</h3></div>
+    <div class="panel-body">
+      <div class="table-wrap">
+        <table><thead><tr><th>Fecha</th><th>Animal</th><th>Concepto</th><th>Detalle</th><th>Monto Bs</th><th>Monto USD</th><th></th></tr></thead>
+        <tbody id="tbody-gastos"><tr><td colspan="7" style="text-align:center;color:var(--gris);padding:20px">Sin registros</td></tr></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     VENTAS
+══════════════════════════════════════════════════ -->
+<div id="s-ventas" class="seccion">
+  <div class="tabs-bar">
+    <button class="tab-btn active-verde" onclick="tabVenta('bulto',this)">📦 Venta al Bulto</button>
+    <button class="tab-btn" onclick="tabVenta('peso',this)">⚖️ Venta al Peso</button>
+  </div>
+
+  <!-- ── VENTA AL BULTO ── -->
+  <div id="ven-panel-bulto" class="panel">
+    <div class="panel-header"><h3>📦 Venta al Bulto — Selección Múltiple</h3></div>
+    <div class="panel-body">
+      <div id="alerta-ven-bulto" class="alerta"></div>
+      <div class="form-row" style="max-width:700px">
+        <div class="form-group"><label>Fecha de Venta</label><input type="date" id="vb-fecha"></div>
+        <div class="form-group"><label>Comprador</label><input type="text" id="vb-comprador" placeholder="Nombre del comprador"></div>
+        <div class="form-group"><label>Precio por Animal (USD)</label><input type="number" id="vb-precio-usd" placeholder="0.00" step="0.01" oninput="calcBulto()"></div>
+        <div class="form-group"><label>Precio por Animal (Bs)</label><input type="number" id="vb-precio-bs" placeholder="Auto" readonly style="background:#f0f8ff;color:var(--azul);font-weight:600"></div>
+      </div>
+
+      <label style="font-size:.8rem;font-weight:700;color:var(--verde-oscuro);text-transform:uppercase;letter-spacing:.3px">Seleccione los animales (toque para marcar):</label>
+      <div id="animales-grid-bulto" class="animales-grid" style="margin-top:8px">
+        <p style="color:var(--gris);font-size:.86rem;padding:10px">Sin animales en recría activos.</p>
+      </div>
+
+      <div id="bulto-lista-wrap" style="display:none">
+        <h4 style="font-size:.85rem;font-weight:700;color:var(--verde-oscuro);margin:12px 0 6px">Animales seleccionados:</h4>
+        <div class="lista-venta">
+          <table><thead><tr><th>Código</th><th>Sexo</th><th>Raza</th><th>Caravana</th><th>Precio USD</th><th>Precio Bs</th><th></th></tr></thead>
+          <tbody id="tbody-bulto-lista"></tbody></table>
+        </div>
+        <div class="total-box">
+          <div><div class="t-label">TOTAL BULTO</div><div class="t-usd" id="vb-total-usd-txt">$ 0.00</div></div>
+          <div class="t-val" id="vb-total-bs-txt">Bs 0.00</div>
+        </div>
+        <div class="form-group" style="max-width:400px;margin-top:10px"><label>Observaciones</label><input type="text" id="vb-obs" placeholder="Notas de la venta..."></div>
+        <div class="btn-group" style="margin-top:10px">
+          <button class="btn btn-primary" onclick="registrarVentaBulto()">✅ Registrar Venta al Bulto</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── VENTA AL PESO ── -->
+  <div id="ven-panel-peso" class="panel" style="display:none">
+    <div class="panel-header" style="background:linear-gradient(90deg,#1a3a6b,var(--azul))"><h3>⚖️ Venta al Peso</h3></div>
+    <div class="panel-body">
+      <div id="alerta-ven-peso" class="alerta"></div>
+      <div class="form-row" style="max-width:700px">
+        <div class="form-group"><label>Fecha de Venta</label><input type="date" id="vp-fecha"></div>
+        <div class="form-group"><label>Comprador</label><input type="text" id="vp-comprador" placeholder="Nombre del comprador"></div>
+        <div class="form-group"><label>Precio / kg (Bs)</label><input type="number" id="vp-precio-kg" placeholder="0.00" step="0.01" oninput="recalcPeso()"></div>
+        <div class="form-group"><label>Precio / kg (USD)</label><input type="number" id="vp-precio-kg-usd" placeholder="Auto" readonly style="background:#f0f8ff;color:var(--azul);font-weight:600"></div>
+      </div>
+
+      <label style="font-size:.8rem;font-weight:700;color:var(--verde-oscuro);text-transform:uppercase;letter-spacing:.3px">Agregar animal a la lista:</label>
+
+      <!-- Fila buscador -->
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;position:relative;z-index:600">
+        <div style="flex:2;min-width:240px;position:relative">
+          <input type="text" id="vp-buscar" placeholder="🔍 Escriba código o caravana..." autocomplete="off"
+            style="width:100%;padding:10px 14px;border:2px solid #93c5fd;border-radius:8px;font-family:'Source Sans 3',sans-serif;font-size:.92rem;outline:none;transition:border-color .2s"
+            oninput="buscarAnimalPeso()" onkeydown="if(event.key==='Enter') agregarAPesaje()"
+            onfocus="this.style.borderColor='var(--azul)'" onblur="this.style.borderColor='#93c5fd'">
+          <!-- DROPDOWN RESULTADOS — fixed para no quedar tapado -->
+          <div id="vp-dropdown"
+            style="display:none;position:absolute;top:calc(100% + 2px);left:0;min-width:420px;max-width:600px;
+                   background:white;border:2px solid var(--azul);border-radius:10px;
+                   box-shadow:0 12px 40px rgba(0,0,0,.22);z-index:9999;
+                   max-height:320px;overflow-y:auto"></div>
+        </div>
+        <input type="number" id="vp-peso-manual" placeholder="Peso (kg)" min="0" step="0.1"
+          style="width:130px;padding:10px 12px;border:2px solid #ddd;border-radius:8px;font-family:'Source Sans 3',sans-serif;font-size:.9rem"
+          onkeydown="if(event.key==='Enter') agregarAPesaje()">
+        <button class="btn btn-azul" style="padding:10px 22px;font-size:.9rem" onclick="agregarAPesaje()">➕ Agregar</button>
+      </div>
+
+      <!-- FICHA ANIMAL SELECCIONADO — debajo del buscador, ancho completo -->
+      <div id="vp-ficha" style="display:none;margin-top:10px;background:#f0fdf4;border:2px solid #86efac;border-radius:10px;padding:12px 16px">
+        <div id="vp-ficha-content"></div>
+      </div>
+
+      <div id="peso-lista-wrap" style="display:none;margin-top:10px">
+        <div class="lista-venta">
+          <table><thead><tr><th>Código</th><th>Sexo</th><th>Raza</th><th>Caravana</th><th>Peso (kg)</th><th>Precio/kg Bs</th><th>Subtotal Bs</th><th>Subtotal USD</th><th></th></tr></thead>
+          <tbody id="tbody-peso-lista"></tbody></table>
+        </div>
+        <div class="total-box">
+          <div><div class="t-label">TOTAL AL PESO</div><div class="t-usd" id="vp-total-usd-txt">$ 0.00</div></div>
+          <div class="t-val" id="vp-total-bs-txt">Bs 0.00</div>
+        </div>
+        <div class="form-group" style="max-width:400px;margin-top:10px"><label>Observaciones</label><input type="text" id="vp-obs" placeholder="Notas de la venta..."></div>
+        <div class="btn-group" style="margin-top:10px">
+          <button class="btn btn-azul" onclick="registrarVentaPeso()">✅ Registrar Venta al Peso</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORIAL -->
+  <div class="panel">
+    <div class="panel-header"><h3>📋 Historial de Ventas</h3></div>
+    <div class="panel-body">
+      <div class="table-wrap">
+        <table><thead><tr><th>Fecha</th><th>Tipo</th><th>Animales</th><th>Total Bs</th><th>Total USD</th><th>Gastos Bs</th><th>Resultado</th><th>Comprador</th><th>Obs</th><th></th></tr></thead>
+        <tbody id="tbody-ventas"><tr><td colspan="10" style="text-align:center;color:var(--gris);padding:20px">Sin ventas registradas</td></tr></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════
+// ESTADO
+// ═══════════════════════════════════════════════════════════
+let TC = 6.96;
+let db = { maternidad:[], recria:[], pesos:[], gastos:[], ventas:[] };
+
+// Estado venta bulto
+let selBulto = new Set();
+// Estado venta peso
+let listaPeso = []; // [{codigo, peso, ...}]
+
+// ── Firebase: cargar y guardar ─────────────────────────────────────────
+function cargarDB(){
+  // Fallback localStorage mientras no hay usuario Firebase
+  try{ const s=localStorage.getItem('lr_db2'); if(s) db=JSON.parse(s); }catch(e){}
+  const t=localStorage.getItem('lr_tc'); if(t) TC=parseFloat(t);
+}
+
+async function guardarDB(){
+  // Guardar en Firestore vinculado al usuario actual
+  if(window._fbUser && window._fbDb && window._fbFns){
+    try{
+      const { doc, setDoc } = window._fbFns;
+      const uid = window._fbUser.uid;
+      const ref = doc(window._fbDb, 'usuarios', uid, 'datos', 'principal');
+      await setDoc(ref, { ...db, tc: TC, updatedAt: new Date().toISOString() });
+      // Guardar TC con clave única por usuario
+      localStorage.setItem('lr_tc_' + uid, TC);
+    } catch(e){ console.warn('Firebase save error:', e.message); }
+  }
+}
+
+window._iniciarApp = async function(uid){
+  // Limpiar DB en memoria — cada usuario empieza limpio
+  db = { maternidad:[], recria:[], pesos:[], gastos:[], ventas:[] };
+
+  if(window._fbDb && window._fbFns){
+    try{
+      const { doc, getDoc } = window._fbFns;
+      const ref  = doc(window._fbDb, 'usuarios', uid, 'datos', 'principal');
+      const snap = await getDoc(ref);
+      if(snap.exists()){
+        // Usuario existente: cargar SUS datos de Firestore
+        const data = snap.data();
+        if(data.maternidad) db.maternidad = data.maternidad;
+        if(data.recria)     db.recria     = data.recria;
+        if(data.pesos)      db.pesos      = data.pesos;
+        if(data.gastos)     db.gastos     = data.gastos;
+        if(data.ventas)     db.ventas     = data.ventas;
+        if(data.tc)         TC            = data.tc;
+      }
+      // Si no existe en Firestore: usuario nuevo → base de datos vacía (no migrar localStorage)
+    } catch(e){
+      console.warn('Firebase load error:', e.message);
+    }
+  }
+
+  // Guardar TC por usuario en localStorage con clave única por uid
+  const tcKey = 'lr_tc_' + uid;
+  const savedTC = localStorage.getItem(tcKey);
+  if(savedTC) TC = parseFloat(savedTC);
+
+  document.getElementById('tc-input').value = TC;
+  document.getElementById('tc-display').textContent = TC.toFixed(2);
+  ['m-fecha','r-fecha','p-fecha','g-fecha','vb-fecha','vp-fecha','rm-fecha','rc-fecha','dest-fecha']
+    .forEach(id=>{ const el=document.getElementById(id); if(el) el.value=hoy(); });
+  renderTablas(); actualizarDashboard(); actualizarDatalist(); actualizarBadges(); fechaTopbar();
+};
+
+// ═══════════════════════════════════════════════════════════
+// UTIL
+// ═══════════════════════════════════════════════════════════
+function fmtNum(v, dec=2){
+  const num = +v||0;
+  // Si es entero exacto, no mostrar decimales
+  const hasDecimals = (num % 1) !== 0;
+  const n = num.toFixed(hasDecimals ? dec : 0);
+  const parts = n.split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return hasDecimals ? parts.join(',') : parts[0];
+}
+const fmtBs  = v => 'Bs ' + fmtNum(v);
+const fmtUSD = v => '$ '  + fmtNum(v);
+function dias(f1,f2){ if(!f1||!f2) return 0; return Math.max(0,Math.round((new Date(f2)-new Date(f1))/86400000)); }
+function hoy(){ return new Date().toISOString().split('T')[0]; }
+function mostrarAlerta(id,msg,tipo='ok'){
+  const el=document.getElementById(id); if(!el)return;
+  el.className='alerta '+tipo; el.innerHTML=(tipo==='ok'?'✅ ':'⚠️ ')+msg;
+  setTimeout(()=>el.className='alerta', 3800);
+}
+
+function actualizarTC(){
+  TC=parseFloat(document.getElementById('tc-input').value)||6.96;
+  document.getElementById('tc-display').textContent=TC.toFixed(2);
+  localStorage.setItem('lr_tc',TC);
+  renderTablas(); actualizarDashboard(); recalcPeso(); calcBulto();
+}
+
+// ═══════════════════════════════════════════════════════════
+// SIDEBAR / NAV
+// ═══════════════════════════════════════════════════════════
+function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('show'); }
+function cerrarSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
+function ir(id,btn){
+  document.querySelectorAll('.seccion').forEach(s=>s.classList.remove('activa'));
+  document.getElementById('s-'+id).classList.add('activa');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  btn.classList.add('active');
+  const icons={dashboard:'📊',maternidad:'🐄',recria:'🐂',pesos:'⚖️',gastos:'💸',ventas:'📦'};
+  document.getElementById('page-title').textContent=(icons[id]||'')+' '+(btn.dataset.title||id);
+  cerrarSidebar();
+  if(id==='dashboard') actualizarDashboard();
+  if(['pesos','gastos'].includes(id)) actualizarDatalist();
+  if(id==='ventas'){ actualizarDatalist(); renderGridBulto(); actualizarDatalistVentaPeso(); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════════════
+let _matAnimal=null, _recAnimal=null;
+
+function tabMat(p,btn){
+  document.getElementById('mat-panel-registro').style.display=p==='registro'?'':'none';
+  document.getElementById('mat-panel-destete').style.display=p==='destete'?'':'none';
+  document.getElementById('mat-panel-excel').style.display=p==='excel'?'':'none';
+  document.querySelectorAll('#s-maternidad .tab-btn').forEach(b=>{ b.className='tab-btn'; b.style.borderColor=''; b.style.color=''; });
+  const cls={registro:'active-verde',destete:'active-dorado',excel:'active-verde'}[p]||'active-verde';
+  btn.className='tab-btn '+cls;
+  if(p==='excel'){ btn.style.background='#166534'; btn.style.color='white'; btn.style.borderColor='#166534'; }
+}
+
+// ═══════════════════════════════════════════════════════════
+// IMPORTAR EXCEL — MATERNIDAD
+// ═══════════════════════════════════════════════════════════
+let excelFilasImport = [];
+
+function handleExcelDrop(e){
+  e.preventDefault();
+  const dz = document.getElementById('excel-dropzone');
+  dz.style.background='white'; dz.style.borderColor='#86efac';
+  const file = e.dataTransfer.files[0];
+  if(file) handleExcelFile(file);
+}
+
+function handleExcelFile(file){
+  if(!file) return;
+  const dz = document.getElementById('excel-dropzone');
+  dz.innerHTML='<div style="font-size:2rem;margin-bottom:6px">⏳</div><div style="font-size:.9rem;font-weight:700;color:#166534">'+file.name+'</div><div style="font-size:.75rem;color:var(--gris);margin-top:4px">Procesando...</div>';
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, {type:'array', cellDates:true});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+      procesarFilasExcel(rows);
+      dz.innerHTML='<div style="font-size:2rem;margin-bottom:6px">✅</div><div style="font-size:.9rem;font-weight:700;color:#166534">'+file.name+'</div><div style="font-size:.75rem;color:var(--gris);margin-top:4px">Archivo leído correctamente</div>';
+    } catch(err){
+      mostrarAlerta('alerta-excel','Error al leer el archivo: '+err.message,'error');
+      dz.innerHTML='<div style="font-size:2.5rem;margin-bottom:8px">📂</div><div style="font-size:1rem;font-weight:700;color:#166534">Arrastrá tu archivo Excel aquí</div><div style="font-size:.82rem;color:var(--gris);margin-top:4px">o hacé clic para seleccionar</div><div style="font-size:.75rem;color:var(--gris);margin-top:6px">Formatos: .xlsx · .xls · .csv</div>';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function procesarFilasExcel(rows){
+  // Buscar fila encabezado (máx 5 filas)
+  let headerRow = -1;
+  let headerMap = {};
+  for(let i=0; i<Math.min(rows.length,5); i++){
+    const r = rows[i].map(c=>(c||'').toString().toUpperCase().trim());
+    if(r.includes('FECHA') || r.includes('MADRE') || r.includes('CRIA')){
+      headerRow = i;
+      r.forEach((h,idx)=>{ if(h) headerMap[h]=idx; });
+      break;
+    }
+  }
+  if(headerRow===-1){
+    // fallback: fila 1 = encabezados (fila 0 = título cabana)
+    headerRow = 1;
+    if(rows[1]) rows[1].forEach((c,idx)=>{ const h=(c||'').toString().toUpperCase().trim(); if(h) headerMap[h]=idx; });
+  }
+
+  const col = (...names) => { for(const n of names){ if(headerMap[n]!==undefined) return headerMap[n]; } return -1; };
+  const iF   = col('FECHA');
+  const iMad = col('MADRE');
+  const iPad = col('PADRE');
+  const iCri = col('CRIA','CRÍA','CRIA');
+  const iSex = col('SEXO');
+  const iPes = col('PESO');
+  const iRaz = col('RAZA');
+  const iMar = col('MARCA');
+  const iObs = col('OBS','OBSERVACIONES','OBS.');
+
+  excelFilasImport = [];
+  rows.slice(headerRow+1).forEach((row, idx)=>{
+    const noVacios = row.filter(c=>c!==undefined&&c!==null&&c.toString().trim()!=='');
+    if(!noVacios.length) return;
+
+    const get = i => (i>=0 && row[i]!==undefined && row[i]!==null) ? row[i].toString().trim() : '';
+
+    // Fecha
+    let fechaStr = '';
+    if(iF>=0 && row[iF] instanceof Date){
+      const d=row[iF];
+      fechaStr=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    } else {
+      const raw=get(iF);
+      const m=raw.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})$/);
+      if(m){ const yr=m[3].length===2?'20'+m[3]:m[3]; fechaStr=yr+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0'); }
+      else if(raw.match(/^\d{4}-\d{2}-\d{2}$/)) fechaStr=raw;
+      else fechaStr='';
+    }
+
+    const cria = get(iCri);
+    const sexo = (get(iSex)||'M').toUpperCase().startsWith('H')?'H':'M';
+    const pesoNac = parseFloat(get(iPes))||0;
+
+    let estado='ok', estadoMsg='✅ OK';
+    if(!cria){ estado='error'; estadoMsg='⚠️ Sin código cría'; }
+    else if(db.maternidad.find(r=>r.cria===cria)){ estado='dup'; estadoMsg='🔁 Ya existe'; }
+
+    excelFilasImport.push({ idx:idx+1, fecha:fechaStr||hoy(), madre:get(iMad), padre:get(iPad),
+      cria, sexo, pesoNac, raza:get(iRaz), marca:get(iMar), obs:get(iObs), estado, estadoMsg });
+  });
+
+  renderPreviewExcel();
+}
+
+function renderPreviewExcel(){
+  const tb   = document.getElementById('tbody-excel-preview');
+  const ok   = excelFilasImport.filter(r=>r.estado==='ok').length;
+  const dup  = excelFilasImport.filter(r=>r.estado==='dup').length;
+  const err  = excelFilasImport.filter(r=>r.estado==='error').length;
+
+  document.getElementById('excel-preview-count').textContent = excelFilasImport.length+' filas detectadas';
+  document.getElementById('excel-ok-count').textContent  = '✅ '+ok+' para importar';
+  document.getElementById('excel-dup-count').textContent = '🔁 '+dup+' duplicados';
+  document.getElementById('excel-err-count').textContent = '⚠️ '+err+' con errores';
+  document.getElementById('excel-preview').style.display = '';
+
+  if(!excelFilasImport.length){
+    tb.innerHTML='<tr><td colspan="11" style="text-align:center;color:var(--gris);padding:16px">No se encontraron datos. Verifique que el archivo tiene el formato correcto.</td></tr>';
+    return;
+  }
+  tb.innerHTML = excelFilasImport.map(r=>{
+    const bg = r.estado==='dup'?'style="background:#fffbeb"':r.estado==='error'?'style="background:#fee2e2"':'';
+    return '<tr '+bg+'>'
+      +'<td style="color:var(--gris);font-size:.75rem">'+r.idx+'</td>'
+      +'<td>'+r.fecha+'</td><td>'+r.madre+'</td><td>'+r.padre+'</td>'
+      +'<td><strong>'+(r.cria||'—')+'</strong></td>'
+      +'<td><span class="badge badge-'+r.sexo.toLowerCase()+'">'+r.sexo+'</span></td>'
+      +'<td>'+(r.pesoNac||'—')+'</td><td>'+r.raza+'</td><td>'+r.marca+'</td><td>'+r.obs+'</td>'
+      +'<td style="font-size:.78rem;font-weight:600">'+r.estadoMsg+'</td>'
+      +'</tr>';
+  }).join('');
+
+  const btn = document.getElementById('btn-confirmar-excel');
+  btn.textContent = '✅ Importar '+ok+' filas válidas';
+  btn.disabled = (ok===0);
+}
+
+function confirmarImportacion(){
+  const validas = excelFilasImport.filter(r=>r.estado==='ok');
+  if(!validas.length){ mostrarAlerta('alerta-excel','No hay filas válidas para importar','error'); return; }
+  validas.forEach(r=>{
+    db.maternidad.push({ id:Date.now()+Math.random()*1000,
+      fecha:r.fecha, madre:r.madre, padre:r.padre, cria:r.cria,
+      sexo:r.sexo, raza:r.raza, marca:r.marca,
+      pesoNac:r.pesoNac, pesoDes:0, fechaDes:'', obsDes:'', obs:r.obs });
+  });
+  guardarDB(); renderTablaMaternidad(); actualizarBadges();
+  mostrarAlerta('alerta-excel', validas.length+' registros importados correctamente a Maternidad');
+  cancelarImportacion();
+}
+
+function cancelarImportacion(){
+  excelFilasImport=[];
+  document.getElementById('excel-preview').style.display='none';
+}
+
+function tabRec(p,btn){
+  ['maternidad','comprado','manual'].forEach(x=>document.getElementById('rec-panel-'+x).style.display=x===p?'':'none');
+  document.querySelectorAll('#s-recria .tab-btn').forEach(b=>b.className='tab-btn');
+  const cls={maternidad:'active-verde',comprado:'active-dorado',manual:'active-azul'}[p];
+  btn.className='tab-btn '+cls;
+}
+function tabVenta(p,btn){
+  document.getElementById('ven-panel-bulto').style.display=p==='bulto'?'':'none';
+  document.getElementById('ven-panel-peso').style.display=p==='peso'?'':'none';
+  document.querySelectorAll('#s-ventas .tab-btn').forEach(b=>b.className='tab-btn');
+  btn.className='tab-btn '+(p==='bulto'?'active-verde':'active-azul');
+  if(p==='bulto') renderGridBulto();
+  if(p==='peso') actualizarDatalistVentaPeso();
+}
+
+// ═══════════════════════════════════════════════════════════
+// MATERNIDAD
+// ═══════════════════════════════════════════════════════════
+function agregarMaternidad(){
+  const row={ id:Date.now(), fecha:document.getElementById('m-fecha').value||hoy(),
+    madre:document.getElementById('m-madre').value.trim(), padre:document.getElementById('m-padre').value.trim(),
+    cria:document.getElementById('m-cria').value.trim(), sexo:document.getElementById('m-sexo').value,
+    raza:document.getElementById('m-raza').value.trim(), marca:document.getElementById('m-marca').value.trim(),
+    pesoNac:parseFloat(document.getElementById('m-peso-nac').value)||0,
+    pesoDes:parseFloat(document.getElementById('m-peso-des').value)||0,
+    fechaDes:'', obsDes:'', obs:document.getElementById('m-obs').value.trim() };
+  if(!row.cria){ mostrarAlerta('alerta-mat','Ingrese el código de cría','error'); return; }
+  db.maternidad.push(row); guardarDB(); renderTablaMaternidad(); actualizarBadges();
+  mostrarAlerta('alerta-mat','Parto registrado correctamente');
+  ['m-madre','m-padre','m-cria','m-raza','m-marca','m-obs','m-peso-nac','m-peso-des'].forEach(i=>document.getElementById(i).value='');
+}
+
+function renderTablaMaternidad(){
+  const tb=document.getElementById('tbody-maternidad');
+  document.getElementById('cnt-mat').textContent=db.maternidad.length+' registros';
+  if(!db.maternidad.length){ tb.innerHTML='<tr><td colspan="12" style="text-align:center;color:var(--gris);padding:20px">Sin registros</td></tr>'; return; }
+  tb.innerHTML=[...db.maternidad].reverse().map(r=>{
+    const destBadge=r.pesoDes?`<strong style="color:var(--verde)">${r.pesoDes} kg</strong>`:'<span class="badge badge-pendiente">Pendiente</span>';
+    const edadR=calcEdad(r.fecha);
+    return `<tr><td>${r.fecha}</td><td>${r.madre}</td><td>${r.padre}</td><td><strong>${r.cria}</strong></td>
+      <td><span class="badge badge-${r.sexo.toLowerCase()}">${r.sexo}</span></td>
+      <td>${r.raza}</td><td>${r.marca}</td><td>${r.pesoNac||'—'} kg</td>
+      <td>${destBadge}</td><td>${r.fechaDes||'—'}</td>
+      <td><span style="font-size:.8rem;color:var(--verde);font-weight:600">${edadR.texto}</span></td>
+      <td>${r.obs}</td>
+      <td><button class="btn btn-danger" onclick="eliminar('maternidad',${r.id})">🗑</button></td></tr>`;
+  }).join('');
+}
+
+// ── DESTETE ──
+function buscarParaDestete(){
+  const q=(document.getElementById('dest-buscar').value||'').trim().toLowerCase();
+  if(!q) return;
+  const f=db.maternidad.find(r=>r.cria.toLowerCase()===q||r.marca.toLowerCase()===q);
+  if(f){
+    _matAnimal=f;
+    document.getElementById('dest-resultado').style.display='';
+    document.getElementById('dest-fecha').value=hoy();
+    document.getElementById('dest-info').innerHTML=infoFields([
+      {l:'Cría',v:`<strong>${f.cria}</strong>`},{l:'Caravana',v:f.marca},
+      {l:'Madre',v:f.madre},{l:'Padre',v:f.padre},{l:'F.Parto',v:f.fecha},
+      {l:'🎂 Edad actual',v:`<strong style="color:var(--verde);font-size:1rem">${calcEdad(f.fecha).texto}</strong>`},
+      {l:'P.Nacido',v:(f.pesoNac||'—')+' kg'},{l:'P.Destete actual',v:f.pesoDes?`<strong style="color:var(--verde)">${f.pesoDes} kg</strong>`:'<span style="color:var(--gris)">Pendiente</span>'}
+    ]);
+  } else {
+    _matAnimal=null; document.getElementById('dest-resultado').style.display='none';
+    mostrarAlerta('alerta-dest','No se encontró animal','error');
+  }
+}
+function limpiarDestete(){
+  _matAnimal=null; document.getElementById('dest-buscar').value='';
+  document.getElementById('dest-resultado').style.display='none';
+  ['dest-peso','dest-obs'].forEach(i=>document.getElementById(i).value='');
+}
+function guardarDestete(){
+  if(!_matAnimal){ mostrarAlerta('alerta-dest','Busque un animal primero','error'); return; }
+  const peso=parseFloat(document.getElementById('dest-peso').value)||0;
+  if(!peso){ mostrarAlerta('alerta-dest','Ingrese el peso','error'); return; }
+  _matAnimal.pesoDes=peso;
+  _matAnimal.fechaDes=document.getElementById('dest-fecha').value||hoy();
+  _matAnimal.obsDes=document.getElementById('dest-obs').value.trim();
+  guardarDB(); renderTablaMaternidad();
+  mostrarAlerta('alerta-dest',`Peso destete de cría ${_matAnimal.cria} actualizado: ${peso} kg`);
+  limpiarDestete();
+}
+
+// ═══════════════════════════════════════════════════════════
+// RECRÍA
+// ═══════════════════════════════════════════════════════════
+function buscarParaRecria(){
+  const q=(document.getElementById('rec-buscar').value||'').trim().toLowerCase();
+  document.getElementById('rec-mat-noencontrado').style.display='none';
+  document.getElementById('rec-mat-resultado').style.display='none';
+  if(!q) return;
+  const f=db.maternidad.find(r=>r.cria.toLowerCase()===q||r.marca.toLowerCase()===q);
+  if(f){
+    if(db.recria.find(r=>r.codigo===f.cria||r.codigo===f.marca)){ mostrarAlerta('alerta-rec-mat','Este animal ya está en Recría','error'); return; }
+    _recAnimal=f;
+    document.getElementById('rm-fecha').value=hoy();
+    document.getElementById('rm-peso-ent').value=f.pesoDes||'';
+    document.getElementById('rec-mat-resultado').style.display='';
+    const edadAnimal = calcEdad(f.fecha);
+    document.getElementById('rec-mat-info').innerHTML=infoFields([
+      {l:'Cría',v:`<strong>${f.cria}</strong>`},{l:'Caravana',v:f.marca},
+      {l:'Sexo',v:`<span class="badge badge-${f.sexo.toLowerCase()}">${f.sexo}</span>`},
+      {l:'Raza',v:f.raza},{l:'Madre',v:f.madre},{l:'Padre',v:f.padre},
+      {l:'F.Parto',v:f.fecha},
+      {l:'🎂 Edad actual',v:`<strong style="color:var(--verde);font-size:1rem">${edadAnimal.texto}</strong>`},
+      {l:'P.Destete',v:f.pesoDes?`<strong style="color:var(--verde)">${f.pesoDes} kg</strong>`:'No registrado'}
+    ]);
+  } else {
+    _recAnimal=null; document.getElementById('rec-mat-noencontrado').style.display='';
+  }
+}
+function limpiarBusquedaRec(){
+  _recAnimal=null; document.getElementById('rec-buscar').value='';
+  document.getElementById('rec-mat-resultado').style.display='none';
+  document.getElementById('rec-mat-noencontrado').style.display='none';
+  ['rm-peso-ent','rm-obs'].forEach(i=>document.getElementById(i).value='');
+}
+function ingresarDesdeMaternidad(){
+  if(!_recAnimal){ mostrarAlerta('alerta-rec-mat','Busque un animal primero','error'); return; }
+  const peso=parseFloat(document.getElementById('rm-peso-ent').value)||0;
+  if(!peso){ mostrarAlerta('alerta-rec-mat','Ingrese el peso de entrada','error'); return; }
+  const row={ id:Date.now(), fecha:document.getElementById('rm-fecha').value||hoy(),
+    codigo:_recAnimal.cria, madre:_recAnimal.madre, padre:_recAnimal.padre,
+    sexo:_recAnimal.sexo, raza:_recAnimal.raza, marca:_recAnimal.marca,
+    pesoEnt:peso, obs:document.getElementById('rm-obs').value.trim(),
+    estado:'activo', origen:'Maternidad' };
+  db.recria.push(row); guardarDB(); renderTablaRecria(); actualizarDatalist(); actualizarBadges();
+  mostrarAlerta('alerta-rec-mat',`Animal #${row.codigo} ingresado a Recría`);
+  limpiarBusquedaRec();
+}
+
+// COMPRADO — conservar campos al registrar
+function syncCompra(){ const bs=parseFloat(document.getElementById('rc-precio-bs').value)||0; document.getElementById('rc-precio-usd').value=(bs/TC).toFixed(2); }
+function agregarComprado(){
+  const bs=parseFloat(document.getElementById('rc-precio-bs').value)||0;
+  const row={ id:Date.now(),
+    fecha:document.getElementById('rc-fecha').value||hoy(),
+    codigo:document.getElementById('rc-codigo').value.trim(),
+    madre:'—', padre:'—',
+    sexo:document.getElementById('rc-sexo').value,
+    raza:document.getElementById('rc-raza').value.trim(),
+    marca:document.getElementById('rc-codigo').value.trim(),
+    pesoEnt:parseFloat(document.getElementById('rc-peso').value)||0,
+    obs:document.getElementById('rc-obs').value.trim(),
+    estado:'activo', origen:'Comprado',
+    proveedor:document.getElementById('rc-proveedor').value.trim(),
+    precioBs:bs };
+  if(!row.codigo||!row.pesoEnt){ mostrarAlerta('alerta-rec-comp','Complete caravana y peso','error'); return; }
+  db.recria.push(row);
+  if(bs>0) db.gastos.push({ id:Date.now()+1, fecha:row.fecha, codigo:row.codigo, concepto:'Compra animal', detalle:'Compra '+row.codigo+' · '+row.proveedor, montoBs:bs, montoUsd:bs/TC });
+  guardarDB(); renderTablaRecria(); renderTablaGastos(); actualizarDashboard(); actualizarDatalist(); actualizarBadges();
+  mostrarAlerta('alerta-rec-comp',`${row.codigo} registrado${bs>0?' · Gasto de compra añadido':''}`);
+  // Conservar: proveedor, raza, edad, peso, precio — solo limpiar caravana y obs
+  document.getElementById('rc-codigo').value='';
+  document.getElementById('rc-obs').value='';
+  document.getElementById('rc-codigo').focus();
+}
+
+// MANUAL
+function agregarRecria(){
+  const row={ id:Date.now(), fecha:document.getElementById('r-fecha').value||hoy(),
+    codigo:document.getElementById('r-codigo').value.trim(),
+    madre:document.getElementById('r-madre').value.trim(), padre:document.getElementById('r-padre').value.trim(),
+    sexo:document.getElementById('r-sexo').value, raza:document.getElementById('r-raza').value.trim(),
+    marca:document.getElementById('r-marca').value.trim(), pesoEnt:parseFloat(document.getElementById('r-peso-ent').value)||0,
+    obs:document.getElementById('r-obs').value.trim(), estado:'activo', origen:'Manual' };
+  if(!row.codigo){ mostrarAlerta('alerta-rec','Ingrese el código','error'); return; }
+  db.recria.push(row); guardarDB(); renderTablaRecria(); actualizarDatalist(); actualizarBadges();
+  mostrarAlerta('alerta-rec','Animal ingresado a recría');
+  ['r-codigo','r-madre','r-padre','r-raza','r-marca','r-obs','r-peso-ent'].forEach(i=>document.getElementById(i).value='');
+}
+
+function renderTablaRecria(){
+  const tb=document.getElementById('tbody-recria');
+  const act=db.recria.filter(r=>r.estado==='activo').length;
+  document.getElementById('cnt-rec').textContent=act+' activos / '+db.recria.length+' total';
+  if(!db.recria.length){ tb.innerHTML='<tr><td colspan="14" style="text-align:center;color:var(--gris);padding:20px">Sin registros</td></tr>'; return; }
+  tb.innerHTML=[...db.recria].reverse().map(r=>{
+    const ps=db.pesos.filter(p=>p.codigo===r.codigo).sort((a,b)=>a.fecha>b.fecha?1:-1);
+    const ult=ps.length?ps[ps.length-1].peso:r.pesoEnt;
+    const d=dias(r.fecha,hoy());
+    const gpd=d>0?((ult-r.pesoEnt)/d).toFixed(3)+' kg/d':'—';
+    const est=r.estado==='vendido'?'<span class="badge badge-vendido">Vendido</span>':'<span class="badge badge-activo">Activo</span>';
+    const orig=r.origen==='Comprado'?'<span class="badge" style="background:#fef3c7;color:#92400e">🛒 Comprado</span>':r.origen==='Maternidad'?'<span class="badge badge-m">🐄 Propio</span>':'<span class="badge" style="background:#e0e7ff;color:#3730a3">✏️ Manual</span>';
+    return `<tr><td>${r.fecha}</td><td><strong>${r.codigo}</strong></td><td>${orig}</td><td>${r.madre||'—'}</td><td>${r.padre||'—'}</td>
+      <td><span class="badge badge-${r.sexo.toLowerCase()}">${r.sexo}</span></td>
+      <td>${r.raza}</td><td>${r.marca}</td><td>${r.pesoEnt} kg</td><td>${ult} kg</td>
+      <td>${gpd}</td><td>${d}d</td><td>${est}</td>
+      <td><button class="btn btn-danger" onclick="eliminar('recria',${r.id})">🗑</button></td></tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PESAJES — mostrar peso anterior
+// ═══════════════════════════════════════════════════════════
+function mostrarPesoAnterior(){
+  const cod=(document.getElementById('p-codigo').value||'').trim();
+  const fechaHoy=document.getElementById('p-fecha').value||hoy();
+  const box=document.getElementById('peso-ant-box');
+  if(!cod){ box.style.display='none'; return; }
+  // buscar pesajes anteriores de este animal antes de la fecha actual
+  const anteriores=db.pesos.filter(p=>p.codigo===cod&&p.fecha<=fechaHoy).sort((a,b)=>a.fecha>b.fecha?1:-1);
+  if(!anteriores.length){ box.style.display='none'; return; }
+  const ant=anteriores[anteriores.length-1];
+  const d=dias(ant.fecha, fechaHoy);
+  box.style.display='';
+  document.getElementById('peso-ant-info').innerHTML=`
+    <div><span>Fecha anterior</span><strong>${ant.fecha}</strong></div>
+    <div><span>Peso anterior</span><strong>${ant.peso} kg</strong></div>
+    <div><span>Días desde ese pesaje</span><strong style="color:var(--dorado)">${d} días</strong></div>
+    <div><span>Observación</span><strong>${ant.obs||'—'}</strong></div>`;
+}
+
+function agregarPesaje(){
+  const row={ id:Date.now(), fecha:document.getElementById('p-fecha').value||hoy(),
+    codigo:document.getElementById('p-codigo').value.trim(),
+    peso:parseFloat(document.getElementById('p-peso').value)||0,
+    obs:document.getElementById('p-obs').value.trim() };
+  if(!row.codigo||!row.peso){ mostrarAlerta('alerta-pes','Complete código y peso','error'); return; }
+  db.pesos.push(row); guardarDB(); renderTablaPesos(); renderTablaRecria(); actualizarBadges();
+  mostrarAlerta('alerta-pes','Pesaje registrado');
+  ['p-codigo','p-obs','p-peso'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('peso-ant-box').style.display='none';
+}
+
+function renderTablaPesos(){
+  const tb=document.getElementById('tbody-pesos');
+  if(!db.pesos.length){ tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--gris);padding:20px">Sin registros</td></tr>'; return; }
+  tb.innerHTML=[...db.pesos].sort((a,b)=>b.fecha>a.fecha?1:-1).map(r=>{
+    const ant=db.pesos.filter(p=>p.codigo===r.codigo&&p.fecha<r.fecha).sort((a,b)=>a.fecha>b.fecha?1:-1);
+    let pesoAntTxt='—', diasTxt='—', gpdTxt='—';
+    if(ant.length){
+      const a=ant[ant.length-1];
+      const d=dias(a.fecha,r.fecha);
+      pesoAntTxt=`${a.peso} kg`;
+      diasTxt=`${d} días`;
+      if(d>0) gpdTxt=((r.peso-a.peso)/d).toFixed(3)+' kg/d';
+    } else {
+      const rec=db.recria.find(x=>x.codigo===r.codigo);
+      if(rec){
+        const d=dias(rec.fecha,r.fecha);
+        pesoAntTxt=`${rec.pesoEnt} kg (entrada)`;
+        diasTxt=`${d} días`;
+        if(d>0) gpdTxt=((r.peso-rec.pesoEnt)/d).toFixed(3)+' kg/d';
+      }
+    }
+    return `<tr><td>${r.fecha}</td><td><strong>${r.codigo}</strong></td>
+      <td><strong>${r.peso} kg</strong></td>
+      <td style="color:var(--gris)">${pesoAntTxt}</td>
+      <td style="color:var(--dorado);font-weight:600">${diasTxt}</td>
+      <td>${gpdTxt}</td><td>${r.obs}</td>
+      <td><button class="btn btn-danger" onclick="eliminar('pesos',${r.id})">🗑</button></td></tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// GASTOS
+// ═══════════════════════════════════════════════════════════
+function syncBS(){ const bs=parseFloat(document.getElementById('g-monto-bs').value)||0; document.getElementById('g-monto-usd').value=(bs/TC).toFixed(2); }
+function agregarGasto(){
+  const bs=parseFloat(document.getElementById('g-monto-bs').value)||0;
+  if(!bs){ mostrarAlerta('alerta-gas','Ingrese el monto','error'); return; }
+  const row={ id:Date.now(), fecha:document.getElementById('g-fecha').value||hoy(),
+    codigo:document.getElementById('g-codigo').value.trim()||'LOTE',
+    concepto:document.getElementById('g-concepto').value,
+    detalle:document.getElementById('g-detalle').value.trim(),
+    montoBs:bs, montoUsd:bs/TC };
+  db.gastos.push(row); guardarDB(); renderTablaGastos(); actualizarDashboard(); actualizarBadges();
+  mostrarAlerta('alerta-gas','Gasto registrado');
+  ['g-codigo','g-detalle','g-monto-bs','g-monto-usd'].forEach(i=>document.getElementById(i).value='');
+}
+function renderTablaGastos(){
+  const tb=document.getElementById('tbody-gastos');
+  if(!db.gastos.length){ tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--gris);padding:20px">Sin registros</td></tr>'; return; }
+  tb.innerHTML=[...db.gastos].sort((a,b)=>b.fecha>a.fecha?1:-1).map(r=>`
+    <tr><td>${r.fecha}</td><td><strong>${r.codigo}</strong></td><td>${r.concepto}</td><td>${r.detalle}</td>
+    <td><strong>${fmtBs(r.montoBs)}</strong></td><td>${fmtUSD(r.montoBs/TC)}</td>
+    <td><button class="btn btn-danger" onclick="eliminar('gastos',${r.id})">🗑</button></td></tr>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// VENTAS — AL BULTO
+// ═══════════════════════════════════════════════════════════
+function renderGridBulto(){
+  const activos=db.recria.filter(r=>r.estado==='activo');
+  const grid=document.getElementById('animales-grid-bulto');
+  if(!activos.length){ grid.innerHTML='<p style="color:var(--gris);font-size:.86rem;padding:10px">Sin animales activos en recría.</p>'; return; }
+  grid.innerHTML=activos.map(r=>`
+    <div class="animal-card ${selBulto.has(r.codigo)?'selected':''}" onclick="toggleBulto('${r.codigo}',this)" id="ac-${r.codigo}">
+      <div class="ac-cod">${r.codigo}</div>
+      <div class="ac-peso">${r.pesoEnt}kg</div>
+      <div class="ac-sex">${r.sexo} · ${r.raza}</div>
+    </div>`).join('');
+  actualizarListaBulto();
+}
+
+function toggleBulto(cod, el){
+  if(selBulto.has(cod)){ selBulto.delete(cod); el.classList.remove('selected'); }
+  else { selBulto.add(cod); el.classList.add('selected'); }
+  actualizarListaBulto();
+}
+
+function calcBulto(){
+  const usd=parseFloat(document.getElementById('vb-precio-usd').value)||0;
+  document.getElementById('vb-precio-bs').value=(usd*TC).toFixed(2);
+  actualizarListaBulto();
+}
+
+function actualizarListaBulto(){
+  const usd=parseFloat(document.getElementById('vb-precio-usd').value)||0;
+  const bs=usd*TC;
+  const lista=document.getElementById('bulto-lista-wrap');
+  const tb=document.getElementById('tbody-bulto-lista');
+  if(!selBulto.size){ lista.style.display='none'; return; }
+  lista.style.display='';
+  tb.innerHTML=[...selBulto].map(cod=>{
+    const r=db.recria.find(x=>x.codigo===cod);
+    if(!r) return '';
+    return `<tr><td><strong>${r.codigo}</strong></td>
+      <td><span class="badge badge-${r.sexo.toLowerCase()}">${r.sexo}</span></td>
+      <td>${r.raza}</td><td>${r.marca}</td>
+      <td>${fmtUSD(usd)}</td><td>${fmtBs(bs)}</td>
+      <td><button class="btn btn-danger" onclick="quitarBulto('${cod}')">✖</button></td></tr>`;
+  }).join('');
+  const total=selBulto.size*bs;
+  document.getElementById('vb-total-bs-txt').textContent=fmtBs(total);
+  document.getElementById('vb-total-usd-txt').textContent=fmtUSD(total/TC);
+}
+
+function quitarBulto(cod){
+  selBulto.delete(cod);
+  const el=document.getElementById('ac-'+cod); if(el) el.classList.remove('selected');
+  actualizarListaBulto();
+}
+
+function registrarVentaBulto(){
+  if(!selBulto.size){ mostrarAlerta('alerta-ven-bulto','Seleccione al menos un animal','error'); return; }
+  const usd=parseFloat(document.getElementById('vb-precio-usd').value)||0;
+  if(!usd){ mostrarAlerta('alerta-ven-bulto','Ingrese el precio por animal','error'); return; }
+  const comprador=document.getElementById('vb-comprador').value.trim();
+  if(!comprador){ mostrarAlerta('alerta-ven-bulto','Ingrese el comprador','error'); return; }
+  const fecha=document.getElementById('vb-fecha').value||hoy();
+  const bs=usd*TC;
+  const total=selBulto.size*bs;
+  const codigos=[...selBulto];
+  const venta={ id:Date.now(), fecha, tipo:'Bulto', codigos,
+    totalBs:total, totalUsd:total/TC,
+    precioUnitUsd:usd, precioUnitBs:bs,
+    comprador, obs:document.getElementById('vb-obs').value.trim() };
+  db.ventas.push(venta);
+  codigos.forEach(cod=>{ const r=db.recria.find(x=>x.codigo===cod); if(r) r.estado='vendido'; });
+  guardarDB(); renderTablaVentas(); renderTablaRecria(); actualizarDashboard(); actualizarBadges();
+  mostrarAlerta('alerta-ven-bulto',`Venta al bulto registrada — ${codigos.length} animales · ${fmtBs(total)}`);
+  selBulto.clear();
+  ['vb-comprador','vb-precio-usd','vb-precio-bs','vb-obs'].forEach(i=>document.getElementById(i).value='');
+  renderGridBulto();
+}
+
+// ═══════════════════════════════════════════════════════════
+// VENTAS — AL PESO
+// ═══════════════════════════════════════════════════════════
+function actualizarDatalistVentaPeso(){
+  // ya no usa datalist — función vacía mantenida por compatibilidad
+}
+
+let _vpSelAnimal = null;
+
+function buscarAnimalPeso(){
+  const q = (document.getElementById('vp-buscar').value||'').trim().toLowerCase();
+  const dd = document.getElementById('vp-dropdown');
+  const ficha = document.getElementById('vp-ficha');
+
+  if(!q){ dd.style.display='none'; ficha.style.display='none'; _vpSelAnimal=null; return; }
+  if(q.length < 1){ dd.style.display='none'; return; }
+
+  // Buscar en TODOS los animales de recría (activos y vendidos)
+  const todos = db.recria.filter(r=>
+    r.codigo.toLowerCase().includes(q) || r.marca.toLowerCase().includes(q)
+  ).slice(0,12);
+
+  if(!todos.length){
+    dd.innerHTML='<div style="padding:12px 14px;color:var(--gris);font-size:.86rem">No se encontró ningún animal</div>';
+    dd.style.display=''; ficha.style.display='none'; _vpSelAnimal=null; return;
+  }
+
+  dd.innerHTML = todos.map(r=>{
+    const ps = db.pesos.filter(p=>p.codigo===r.codigo).sort((a,b)=>a.fecha>b.fecha?1:-1);
+    const ultPeso = ps.length ? ps[ps.length-1].peso : r.pesoEnt;
+    const yaEnLista = listaPeso.find(x=>x.codigo===r.codigo);
+    const isActivo = r.estado==='activo';
+    const isVendido = r.estado==='vendido';
+
+    let estadoBadge, estadoColor, disabled='';
+    if(yaEnLista){
+      estadoBadge='🔁 Ya en lista'; estadoColor='#856404'; disabled='opacity:.5;cursor:not-allowed';
+    } else if(isActivo){
+      estadoBadge='✅ Disponible'; estadoColor='#166534';
+    } else {
+      estadoBadge='❌ Vendido'; estadoColor='#991b1b'; disabled='opacity:.5;cursor:not-allowed';
+    }
+
+    const clickable = !yaEnLista && !isVendido;
+    const bgBase = yaEnLista?'#fffbeb':isVendido?'#fff1f1':'white';
+    const badgeBg = isActivo&&!yaEnLista?'#dcfce7':isVendido?'#fee2e2':'#fff3cd';
+    return `<div
+      data-cod="${r.codigo}"
+      data-clickable="${clickable}"
+      class="dd-item"
+      style="padding:13px 16px;cursor:${clickable?'pointer':'not-allowed'};
+             border-bottom:1px solid #f0f0f0;background:${bgBase};
+             transition:background .15s;${!clickable?'opacity:.55':''}">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <strong style="font-size:1rem;color:var(--verde-oscuro)">${r.codigo}</strong>
+          <span style="font-size:.8rem;color:var(--gris)">${r.sexo==='M'?'♂':'♀'} ${r.raza}</span>
+          <span style="font-size:.78rem;color:var(--gris)">Caravana: <strong>${r.marca}</strong></span>
+        </div>
+        <span style="font-size:.76rem;font-weight:700;color:${estadoColor};background:${badgeBg};padding:3px 12px;border-radius:20px;white-space:nowrap">${estadoBadge}</span>
+      </div>
+      <div style="margin-top:5px;display:flex;gap:16px;flex-wrap:wrap">
+        <span style="font-size:.78rem;color:var(--gris)">📥 Entrada: <strong>${r.pesoEnt} kg</strong></span>
+        <span style="font-size:.78rem;color:var(--gris)">⚖️ Últ.peso: <strong style="color:var(--verde)">${ultPeso} kg</strong></span>
+        <span style="font-size:.78rem;color:var(--gris)">📅 Ingreso: ${r.fecha}</span>
+        <span style="font-size:.78rem;color:var(--gris)">Origen: ${r.origen||'—'}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  dd.style.display='';
+  ficha.style.display='none';
+  _vpSelAnimal=null;
+
+  // Bind click y hover via JS — evita problemas con strings interpolados en onclick
+  dd.querySelectorAll('.dd-item').forEach(el=>{
+    const cod = el.dataset.cod;
+    const clickable = el.dataset.clickable === 'true';
+    if(clickable){
+      el.addEventListener('mouseenter', ()=>{ el.style.background='#f0fdf4'; });
+      el.addEventListener('mouseleave', ()=>{ el.style.background='white'; });
+      el.addEventListener('mousedown', (e)=>{
+        e.preventDefault(); // evita que onblur del input cierre el dropdown antes del click
+        seleccionarAnimalPeso(cod);
+      });
+    }
+  });
+}
+
+function seleccionarAnimalPeso(cod){
+  const r = db.recria.find(x=>x.codigo===cod);
+  if(!r) return;
+  _vpSelAnimal = r;
+
+  // Cerrar dropdown
+  document.getElementById('vp-dropdown').style.display='none';
+  document.getElementById('vp-buscar').value = r.codigo;
+
+  // Mostrar ficha del animal
+  const ps = db.pesos.filter(p=>p.codigo===r.codigo).sort((a,b)=>a.fecha>b.fecha?1:-1);
+  const ultPeso = ps.length ? ps[ps.length-1].peso : r.pesoEnt;
+  const ultFecha = ps.length ? ps[ps.length-1].fecha : r.fecha;
+
+  document.getElementById('vp-ficha-content').innerHTML=`
+    <div style="font-size:.7rem;color:var(--verde);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">✅ Animal seleccionado</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:6px;font-size:.82rem">
+      <div><span style="font-size:.65rem;color:var(--gris);display:block">Código</span><strong>${r.codigo}</strong></div>
+      <div><span style="font-size:.65rem;color:var(--gris);display:block">Sexo</span><span class="badge badge-${r.sexo.toLowerCase()}">${r.sexo}</span></div>
+      <div><span style="font-size:.65rem;color:var(--gris);display:block">Raza</span>${r.raza}</div>
+      <div><span style="font-size:.65rem;color:var(--gris);display:block">Caravana</span>${r.marca}</div>
+      <div><span style="font-size:.65rem;color:var(--gris);display:block">P.Entrada</span>${r.pesoEnt} kg</div>
+      <div><span style="font-size:.65rem;color:var(--gris);display:block">Últ.Peso (${ultFecha})</span><strong style="color:var(--verde)">${ultPeso} kg</strong></div>
+    </div>`;
+  document.getElementById('vp-ficha').style.display='';
+
+  // Pre-llenar peso con último pesaje
+  if(!document.getElementById('vp-peso-manual').value){
+    document.getElementById('vp-peso-manual').value = ultPeso;
+  }
+  document.getElementById('vp-peso-manual').focus();
+}
+
+// Cerrar dropdown al hacer clic fuera (mousedown para no interferir con selección)
+document.addEventListener('mousedown', function(e){
+  const dd=document.getElementById('vp-dropdown');
+  const buscar=document.getElementById('vp-buscar');
+  if(dd && !dd.contains(e.target) && e.target!==buscar) dd.style.display='none';
+});
+
+function recalcPeso(){
+  const pbs=parseFloat(document.getElementById('vp-precio-kg').value)||0;
+  document.getElementById('vp-precio-kg-usd').value=(pbs/TC).toFixed(2);
+  renderListaPeso();
+}
+
+function agregarAPesaje(){
+  // Priorizar animal seleccionado del dropdown; si no, buscar por texto
+  let r = _vpSelAnimal;
+  if(!r){
+    const q=(document.getElementById('vp-buscar').value||'').trim();
+    if(!q){ mostrarAlerta('alerta-ven-peso','Busque y seleccione un animal','error'); return; }
+    r=db.recria.find(x=>(x.codigo===q||x.marca===q));
+  }
+  if(!r){ mostrarAlerta('alerta-ven-peso','Animal no encontrado','error'); return; }
+  if(r.estado!=='activo'){ mostrarAlerta('alerta-ven-peso','Este animal ya fue vendido','error'); return; }
+  if(listaPeso.find(x=>x.codigo===r.codigo)){ mostrarAlerta('alerta-ven-peso','Animal ya está en la lista','error'); return; }
+
+  const pesoM=parseFloat(document.getElementById('vp-peso-manual').value)||0;
+  const ps=db.pesos.filter(p=>p.codigo===r.codigo).sort((a,b)=>a.fecha>b.fecha?1:-1);
+  const pesoFinal=pesoM||(ps.length?ps[ps.length-1].peso:r.pesoEnt);
+
+  listaPeso.push({ codigo:r.codigo, sexo:r.sexo, raza:r.raza, marca:r.marca, peso:pesoFinal });
+
+  // Limpiar buscador
+  document.getElementById('vp-buscar').value='';
+  document.getElementById('vp-peso-manual').value='';
+  document.getElementById('vp-dropdown').style.display='none';
+  document.getElementById('vp-ficha').style.display='none';
+  _vpSelAnimal=null;
+  renderListaPeso();
+}
+
+function quitarPeso(cod){
+  listaPeso=listaPeso.filter(x=>x.codigo!==cod);
+  renderListaPeso();
+}
+
+function renderListaPeso(){
+  const wrap=document.getElementById('peso-lista-wrap');
+  const tb=document.getElementById('tbody-peso-lista');
+  if(!listaPeso.length){ wrap.style.display='none'; return; }
+  wrap.style.display='';
+  const pbs=parseFloat(document.getElementById('vp-precio-kg').value)||0;
+  let totalBs=0;
+  tb.innerHTML=listaPeso.map(x=>{
+    const sub=x.peso*pbs;
+    totalBs+=sub;
+    return `<tr><td><strong>${x.codigo}</strong></td>
+      <td><span class="badge badge-${x.sexo.toLowerCase()}">${x.sexo}</span></td>
+      <td>${x.raza}</td><td>${x.marca}</td>
+      <td>${x.peso} kg</td><td>${fmtBs(pbs)}/kg</td>
+      <td><strong>${fmtBs(sub)}</strong></td><td>${fmtUSD(sub/TC)}</td>
+      <td><button class="btn btn-danger" onclick="quitarPeso('${x.codigo}')">✖</button></td></tr>`;
+  }).join('');
+  document.getElementById('vp-total-bs-txt').textContent=fmtBs(totalBs);
+  document.getElementById('vp-total-usd-txt').textContent=fmtUSD(totalBs/TC);
+}
+
+function registrarVentaPeso(){
+  if(!listaPeso.length){ mostrarAlerta('alerta-ven-peso','Agregue animales','error'); return; }
+  const pbs=parseFloat(document.getElementById('vp-precio-kg').value)||0;
+  if(!pbs){ mostrarAlerta('alerta-ven-peso','Ingrese el precio/kg','error'); return; }
+  const comprador=document.getElementById('vp-comprador').value.trim();
+  if(!comprador){ mostrarAlerta('alerta-ven-peso','Ingrese el comprador','error'); return; }
+  const fecha=document.getElementById('vp-fecha').value||hoy();
+  let totalBs=0;
+  listaPeso.forEach(x=>totalBs+=x.peso*pbs);
+  const codigos=listaPeso.map(x=>x.codigo);
+  const venta={ id:Date.now(), fecha, tipo:'Peso', codigos,
+    totalBs, totalUsd:totalBs/TC, precioPorKg:pbs,
+    detalle:listaPeso.map(x=>`${x.codigo}:${x.peso}kg`).join(', '),
+    comprador, obs:document.getElementById('vp-obs').value.trim() };
+  db.ventas.push(venta);
+  codigos.forEach(cod=>{ const r=db.recria.find(x=>x.codigo===cod); if(r) r.estado='vendido'; });
+  guardarDB(); renderTablaVentas(); renderTablaRecria(); actualizarDashboard(); actualizarBadges();
+  mostrarAlerta('alerta-ven-peso',`Venta al peso registrada — ${fmtBs(totalBs)}`);
+  listaPeso=[];
+  ['vp-comprador','vp-precio-kg','vp-precio-kg-usd','vp-obs'].forEach(i=>document.getElementById(i).value='');
+  renderListaPeso(); actualizarDatalistVentaPeso();
+}
+
+// ═══════════════════════════════════════════════════════════
+// TABLA VENTAS
+// ═══════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════
+// EXPORTAR VENTA A PDF
+// ═══════════════════════════════════════════════════════════
+function exportarVentaPDF(id){
+  const v = db.ventas.find(x=>x.id===id);
+  if(!v){ alert('Venta no encontrada'); return; }
+
+  const codigos  = Array.isArray(v.codigos)?v.codigos:(v.codigo?[v.codigo]:[]);
+  const gasTotal = codigos.reduce((s,c)=>s+db.gastos.filter(g=>g.codigo===c||g.codigo==='LOTE').reduce((ss,g)=>ss+g.montoBs,0),0);
+  const resultado= v.totalBs - gasTotal;
+  const positivo = resultado >= 0;
+  const numV     = String([...db.ventas].sort((a,b)=>a.id-b.id).findIndex(x=>x.id===id)+1).padStart(4,'0');
+
+  // Detalle por animal
+  const animales = codigos.map(cod=>{
+    const r = db.recria.find(x=>x.codigo===cod)||{};
+    let kg = r.pesoEnt||0;
+    if(v.tipo==='Peso'&&v.detalle){
+      const seg=(v.detalle.split(',').find(d=>d.trim().startsWith(cod+':'))||'');
+      kg=parseFloat((seg.split(':')[1]||''))||kg;
+    }
+    const sub = v.tipo==='Peso'? kg*(v.precioPorKg||0) : (v.precioUnitBs||0);
+    return {cod, r, kg, sub};
+  });
+
+  const gasDetalle = [...codigos.flatMap(c=>db.gastos.filter(g=>g.codigo===c)),
+                      ...db.gastos.filter(g=>g.codigo==='LOTE')];
+
+  // ── Construir el modal directamente con el DOM ──────────────────
+  let modal = document.getElementById('pdf-modal');
+  if(modal) modal.remove();
+  modal = document.createElement('div');
+  modal.id = 'pdf-modal';
+  Object.assign(modal.style,{
+    position:'fixed',inset:'0',zIndex:'9999',
+    background:'rgba(0,0,0,.8)',display:'flex',
+    flexDirection:'column',alignItems:'center',
+    padding:'14px 12px',overflowY:'auto'
+  });
+  document.body.appendChild(modal);
+  document.body.style.overflow='hidden';
+
+  // Barra top
+  const bar = document.createElement('div');
+  Object.assign(bar.style,{width:'100%',maxWidth:'820px',display:'flex',justifyContent:'space-between',
+    alignItems:'center',marginBottom:'12px',flexWrap:'wrap',gap:'8px'});
+  bar.innerHTML=
+    '<span style="color:white;font-size:1rem;font-weight:700">📄 Comprobante N° '+numV+' — Cabaña Los Rosales</span>'+
+    '<div style="display:flex;gap:8px">'+
+      '<button id="btn-print-pdf" style="padding:9px 20px;background:#c8a84b;color:#0f3d21;border:none;border-radius:7px;font-weight:700;cursor:pointer">🖨️ Imprimir / PDF</button>'+
+      '<button id="btn-close-pdf" style="padding:9px 20px;background:#dc2626;color:white;border:none;border-radius:7px;font-weight:700;cursor:pointer">✖ Cerrar</button>'+
+    '</div>';
+  modal.appendChild(bar);
+
+  // Hoja blanca
+  const hoja = document.createElement('div');
+  Object.assign(hoja.style,{
+    width:'100%',maxWidth:'820px',background:'white',
+    borderRadius:'10px',padding:'36px 40px',
+    boxShadow:'0 20px 60px rgba(0,0,0,.5)',marginBottom:'20px'
+  });
+  modal.appendChild(hoja);
+
+  // ── HEADER ──
+  const hdr = document.createElement('div');
+  Object.assign(hdr.style,{display:'flex',justifyContent:'space-between',
+    alignItems:'flex-start',paddingBottom:'14px',
+    borderBottom:'3px solid #0f3d21',marginBottom:'16px'});
+  hdr.innerHTML=
+    '<div>'+
+      '<div style="font-size:20px;font-weight:700;color:#0f3d21;letter-spacing:1px">🐄 CABAÑA LOS ROSALES</div>'+
+      '<div style="font-size:11px;color:#6c757d;margin-top:3px">Sistema Ganadero · Bolivia</div>'+
+      '<div style="font-size:11px;color:#6c757d;margin-top:2px">Tipo de cambio oficial: Bs '+TC.toFixed(2)+' / USD</div>'+
+    '</div>'+
+    '<div style="text-align:right">'+
+      '<div style="font-size:13px;font-weight:700;color:#0f3d21;letter-spacing:.5px">COMPROBANTE DE VENTA</div>'+
+      '<div style="font-size:20px;font-weight:700;color:#c8a84b;margin-top:2px">N° '+numV+'</div>'+
+      '<div style="font-size:11px;color:#6c757d;margin-top:2px">Emitido: '+new Date().toLocaleDateString('es-BO',{day:'2-digit',month:'long',year:'numeric'})+'</div>'+
+    '</div>';
+  hoja.appendChild(hdr);
+
+  // ── TIPO BADGE ──
+  const badge = document.createElement('span');
+  Object.assign(badge.style,{display:'inline-block',padding:'4px 16px',borderRadius:'20px',
+    fontSize:'11px',fontWeight:'700',textTransform:'uppercase',marginBottom:'18px',
+    background:v.tipo==='Peso'?'#dbeafe':'#dcfce7',
+    color:v.tipo==='Peso'?'#1e40af':'#166534'});
+  badge.textContent = v.tipo==='Peso'?'⚖️ Venta al Peso':'📦 Venta al Bulto';
+  hoja.appendChild(badge);
+
+  // ── HELPER: sección ──
+  function sec(titulo, contenido){
+    const d=document.createElement('div');
+    d.style.marginBottom='18px';
+    const t=document.createElement('div');
+    Object.assign(t.style,{fontSize:'11px',fontWeight:'700',textTransform:'uppercase',
+      letterSpacing:'.8px',color:'#6c757d',borderBottom:'1px solid #e5e7eb',
+      paddingBottom:'5px',marginBottom:'10px'});
+    t.textContent=titulo;
+    d.appendChild(t);
+    d.appendChild(contenido);
+    hoja.appendChild(d);
+  }
+
+  // ── DATOS GENERALES ──
+  const grid1=document.createElement('div');
+  Object.assign(grid1.style,{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:'10px'});
+  const infos=[
+    {l:'Fecha de Venta',v:v.fecha},
+    {l:'Comprador',v:v.comprador||'—'},
+    {l:'N° de Animales',v:codigos.length},
+    v.tipo==='Peso'?{l:'Precio / kg',v:fmtBs(v.precioPorKg||0)+'/kg'}:{l:'Precio por Animal',v:fmtBs(v.precioUnitBs||0)},
+    {l:'Observaciones',v:v.obs||'—'}
+  ];
+  infos.forEach(i=>{
+    const c=document.createElement('div');
+    c.innerHTML='<div style="font-size:10px;color:#9ca3af;text-transform:uppercase;margin-bottom:2px">'+i.l+'</div>'+
+                '<strong style="font-size:13px">'+i.v+'</strong>';
+    grid1.appendChild(c);
+  });
+  sec('Datos de la Venta', grid1);
+
+  // ── TABLA ANIMALES ──
+  const tblA=document.createElement('table');
+  Object.assign(tblA.style,{width:'100%',borderCollapse:'collapse',fontSize:'12px'});
+  const thsA=['Código','Sexo','Raza','Caravana','Origen'];
+  if(v.tipo==='Peso') thsA.push('Peso (kg)','Precio/kg');
+  thsA.push('Subtotal Bs','Subtotal USD');
+  tblA.innerHTML='<thead style="background:#0f3d21;color:white"><tr>'+
+    thsA.map(h=>'<th style="padding:8px 10px;text-align:left;font-size:11px;letter-spacing:.4px">'+h+'</th>').join('')+
+    '</tr></thead>';
+  const tbA=document.createElement('tbody');
+  animales.forEach((a,i)=>{
+    const tr=document.createElement('tr');
+    tr.style.background=i%2===0?'white':'#f9fafb';
+    tr.style.borderBottom='1px solid #f3f4f6';
+    const cels=[a.cod, a.r.sexo||'—', a.r.raza||'—', a.r.marca||'—', a.r.origen||'—'];
+    if(v.tipo==='Peso') cels.push(a.kg+' kg', fmtBs(v.precioPorKg||0)+'/kg');
+    cels.push(fmtBs(a.sub), fmtUSD(a.sub/TC));
+    cels.forEach((c,ci)=>{
+      const td=document.createElement('td');
+      td.style.padding='7px 10px';
+      td.innerHTML=ci===0?'<strong>'+c+'</strong>':c;
+      tr.appendChild(td);
+    });
+    tbA.appendChild(tr);
+  });
+  const tfA=document.createElement('tfoot');
+  const colspan=v.tipo==='Peso'?7:5;
+  tfA.innerHTML='<tr style="background:#f0fdf4;border-top:2px solid #0f3d21">'+
+    '<td colspan="'+colspan+'" style="padding:8px 10px;text-align:right;font-weight:700;font-size:12px">TOTAL VENTA</td>'+
+    '<td style="padding:8px 10px;font-weight:700;font-size:12px">'+fmtBs(v.totalBs)+'</td>'+
+    '<td style="padding:8px 10px;font-size:12px">'+fmtUSD(v.totalBs/TC)+'</td>'+
+    '</tr>';
+  tblA.appendChild(tbA); tblA.appendChild(tfA);
+  sec('Detalle de Animales Vendidos', tblA);
+
+  // ── TABLA GASTOS ──
+  if(gasDetalle.length){
+    const tblG=document.createElement('table');
+    Object.assign(tblG.style,{width:'100%',borderCollapse:'collapse',fontSize:'12px'});
+    tblG.innerHTML='<thead style="background:#0f3d21;color:white"><tr>'+
+      ['Fecha','Animal','Concepto','Detalle','Monto Bs','USD'].map(h=>
+        '<th style="padding:8px 10px;text-align:left;font-size:11px">'+h+'</th>').join('')+
+      '</tr></thead>';
+    const tbG=document.createElement('tbody');
+    gasDetalle.forEach((g,i)=>{
+      const tr=document.createElement('tr');
+      tr.style.background=i%2===0?'white':'#fffbeb';
+      tr.style.borderBottom='1px solid #f3f4f6';
+      [g.fecha,g.codigo,g.concepto,g.detalle||'—',fmtBs(g.montoBs),fmtUSD(g.montoBs/TC)].forEach(c=>{
+        const td=document.createElement('td'); td.style.padding='7px 10px'; td.textContent=c; tr.appendChild(td);
+      });
+      tbG.appendChild(tr);
+    });
+    const tfG=document.createElement('tfoot');
+    tfG.innerHTML='<tr style="background:#fff3cd;border-top:2px solid #0f3d21">'+
+      '<td colspan="4" style="padding:8px 10px;text-align:right;font-weight:700">TOTAL GASTOS</td>'+
+      '<td style="padding:8px 10px;font-weight:700">'+fmtBs(gasTotal)+'</td>'+
+      '<td style="padding:8px 10px">'+fmtUSD(gasTotal/TC)+'</td>'+
+      '</tr>';
+    tblG.appendChild(tbG); tblG.appendChild(tfG);
+    sec('Gastos Asociados a esta Venta', tblG);
+  }
+
+  // ── RESUMEN FINANCIERO ──
+  const finDiv=document.createElement('div');
+  Object.assign(finDiv.style,{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'12px'});
+  [
+    {label:'Total Gastos',   monto:fmtBs(gasTotal),    usd:fmtUSD(gasTotal/TC),      bg:'#fff1f1',border:'#fca5a5',color:'#dc2626'},
+    {label:'Total Ingresos', monto:fmtBs(v.totalBs),   usd:fmtUSD(v.totalBs/TC),     bg:'#f0f8ff',border:'#93c5fd',color:'#1d4ed8'},
+    {label:'Resultado Neto', monto:(positivo?'▲ ':'▼ ')+fmtBs(Math.abs(resultado)),
+      usd:fmtUSD(Math.abs(resultado)/TC)+' · '+(positivo?'Ganancia':'Pérdida'),
+      bg:positivo?'#f0fdf4':'#fff1f1', border:positivo?'#86efac':'#fca5a5', color:positivo?'#166534':'#dc2626'}
+  ].forEach(b=>{
+    const box=document.createElement('div');
+    Object.assign(box.style,{background:b.bg,border:'1px solid '+b.border,borderRadius:'8px',
+      padding:'12px 14px',textAlign:'center'});
+    box.innerHTML='<div style="font-size:10px;color:#6c757d;text-transform:uppercase;margin-bottom:4px">'+b.label+'</div>'+
+      '<div style="font-size:18px;font-weight:700;color:'+b.color+'">'+b.monto+'</div>'+
+      '<div style="font-size:11px;color:#6c757d;margin-top:3px">'+b.usd+'</div>';
+    finDiv.appendChild(box);
+  });
+  sec('Resumen Financiero', finDiv);
+
+  // ── FOOTER FIRMA ──
+  const pie=document.createElement('div');
+  Object.assign(pie.style,{marginTop:'24px',paddingTop:'12px',borderTop:'1px solid #e5e7eb',
+    display:'flex',justifyContent:'space-between',alignItems:'flex-end'});
+  pie.innerHTML='<small style="font-size:10px;color:#9ca3af">Cabaña Los Rosales · Bolivia · '+new Date().toLocaleString('es-BO')+'</small>'+
+    '<div style="text-align:center;borderTop:1px solid #374151;paddingTop:6px;minWidth:160px;fontSize:11px;color:#6c757d">Firma / Sello</div>';
+  hoja.appendChild(pie);
+
+  // Guardar para imprimir
+  window._pdfHoja = hoja;
+  window._pdfNumV = numV;
+
+  // Bind botones
+  document.getElementById('btn-close-pdf').onclick  = cerrarPDFModal;
+  document.getElementById('btn-print-pdf').onclick  = imprimirComprobante;
+}
+
+function imprimirComprobante(){
+  const hoja = window._pdfHoja;
+  const numV = window._pdfNumV||'';
+  if(!hoja){ return; }
+  const css=`*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;padding:28px;color:#1a1a1a}table{width:100%;border-collapse:collapse}thead th{background:#0f3d21;color:white;padding:7px 9px;font-size:11px;text-align:left}tbody td{padding:6px 9px;border-bottom:1px solid #f0f0f0;font-size:12px}@media print{@page{margin:15mm}}`;
+  const w=window.open('','_blank','width=860,height=750');
+  if(w){
+    w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Comprobante N\xb0'+numV+'</title><style>'+css+'</style></head><body>'+hoja.outerHTML+'</body></html>');
+    w.document.close(); w.focus(); setTimeout(()=>w.print(),700);
+  }
+}
+
+function cerrarPDFModal(){
+  const m=document.getElementById('pdf-modal');
+  if(m) m.remove();
+  document.body.style.overflow='';
+}
+
+
+function renderTablaVentas(){
+  const tb=document.getElementById('tbody-ventas');
+  if(!db.ventas.length){ tb.innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--gris);padding:20px">Sin ventas</td></tr>'; return; }
+  tb.innerHTML=[...db.ventas].sort((a,b)=>b.fecha>a.fecha?1:-1).map(v=>{
+    const codigos=Array.isArray(v.codigos)?v.codigos:(v.codigo?[v.codigo]:[]);
+    const gas=codigos.reduce((s,cod)=>s+db.gastos.filter(g=>g.codigo===cod||g.codigo==='LOTE').reduce((ss,g)=>ss+g.montoBs,0),0);
+    const res=v.totalBs-gas;
+    const cls=res>=0?'badge-ganancia':'badge-perdida';
+    const tipoBadge=v.tipo==='Bulto'?'<span class="badge" style="background:#dcfce7;color:#166534">📦 Bulto</span>':'<span class="badge" style="background:#dbeafe;color:#1e40af">⚖️ Peso</span>';
+    return `<tr><td>${v.fecha}</td><td>${tipoBadge}</td>
+      <td style="font-size:.78rem">${codigos.slice(0,3).join(', ')}${codigos.length>3?' +'+(codigos.length-3)+'…':''}</td>
+      <td><strong>${fmtBs(v.totalBs)}</strong></td><td>${fmtUSD(v.totalBs/TC)}</td>
+      <td>${fmtBs(gas)}</td>
+      <td><span class="badge ${cls}">${res>=0?'📈':'📉'} ${fmtBs(res)}</span></td>
+      <td>${v.comprador}</td><td>${v.obs||''}</td>
+      <td style="display:flex;gap:4px">
+        <button class="btn" style="background:#dc2626;color:white;font-size:.72rem;padding:4px 8px" title="Exportar PDF" onclick="exportarVentaPDF(${v.id})">📄 PDF</button>
+        <button class="btn btn-danger" onclick="eliminar('ventas',${v.id})">🗑</button>
+      </td></tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// ELIMINAR
+// ═══════════════════════════════════════════════════════════
+function eliminar(tabla,id){
+  if(!confirm('¿Eliminar este registro?')) return;
+  if(tabla==='ventas'){
+    const v=db.ventas.find(x=>x.id===id);
+    if(v){ const cods=Array.isArray(v.codigos)?v.codigos:(v.codigo?[v.codigo]:[]); db.recria.forEach(r=>{ if(cods.includes(r.codigo)) r.estado='activo'; }); }
+  }
+  db[tabla]=db[tabla].filter(r=>r.id!==id);
+  guardarDB(); renderTablas(); actualizarDashboard(); actualizarBadges();
+}
+
+// ═══════════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════════
+function actualizarDashboard(){
+  const total=db.recria.length+db.maternidad.length;
+  const enRec=db.recria.filter(r=>r.estado==='activo').length;
+  const totGas=db.gastos.reduce((s,g)=>s+g.montoBs,0);
+  const totVen=db.ventas.reduce((s,v)=>s+v.totalBs,0);
+  const res=totVen-totGas;
+  document.getElementById('d-total').textContent=total;
+  document.getElementById('d-recria').textContent=enRec;
+  document.getElementById('d-gastos-bs').textContent=fmtBs(totGas);
+  document.getElementById('d-gastos-usd').textContent=fmtUSD(totGas/TC);
+  document.getElementById('d-ventas-bs').textContent=fmtBs(totVen);
+  document.getElementById('d-ventas-usd').textContent=fmtUSD(totVen/TC);
+  document.getElementById('d-resultado-bs').textContent=fmtBs(res);
+  document.getElementById('d-resultado-usd').textContent=fmtUSD(res/TC);
+  document.getElementById('card-resultado').style.borderLeftColor=res>=0?'var(--verde)':'var(--rojo)';
+
+  let gpds=[];
+  db.recria.forEach(r=>{ const ps=db.pesos.filter(p=>p.codigo===r.codigo).sort((a,b)=>a.fecha>b.fecha?1:-1); const ult=ps.length?ps[ps.length-1].peso:r.pesoEnt; const d=dias(r.fecha,hoy()); if(d>0&&ult>r.pesoEnt) gpds.push((ult-r.pesoEnt)/d); });
+  document.getElementById('d-gpd').textContent=gpds.length?(gpds.reduce((s,v)=>s+v,0)/gpds.length).toFixed(3)+' kg/d':'—';
+
+  const ul=[...db.pesos].sort((a,b)=>b.fecha>a.fecha?1:-1).slice(0,5);
+  document.getElementById('dash-pesajes').innerHTML=ul.length?ul.map(p=>{ const rec=db.recria.find(r=>r.codigo===p.codigo); const d=rec?dias(rec.fecha,p.fecha):0; const gpd=(rec&&d>0)?((p.peso-rec.pesoEnt)/d).toFixed(3):'—'; return `<div class="barra-container"><div class="barra-label"><span><strong>#${p.codigo}</strong> · ${p.fecha}</span><span>${p.peso}kg · ${gpd}kg/d</span></div><div class="barra-bg"><div class="barra-fill" style="width:${Math.min(100,(p.peso/500)*100)}%"></div></div></div>`; }).join(''):'<p style="color:var(--gris);font-size:.86rem">Sin pesajes.</p>';
+
+  document.getElementById('dash-resultado-animales').innerHTML=db.ventas.length?db.ventas.slice(-5).map(v=>{ const cods=Array.isArray(v.codigos)?v.codigos:(v.codigo?[v.codigo]:[]); const gas=cods.reduce((s,c)=>s+db.gastos.filter(g=>g.codigo===c||g.codigo==='LOTE').reduce((ss,g)=>ss+g.montoBs,0),0); const re=v.totalBs-gas; return `<div class="barra-container"><div class="barra-label"><span><strong>${v.tipo}</strong> · ${cods.length} animal(es)</span><span style="color:${re>=0?'var(--verde)':'var(--rojo)'};font-weight:700">${re>=0?'▲':'▼'} ${fmtBs(re)}</span></div><div class="barra-bg"><div class="barra-fill ${re<0?'rojo':''}" style="width:${Math.min(100,Math.abs(re)/Math.max(1,v.totalBs)*100)}%"></div></div></div>`; }).join(''):'<p style="color:var(--gris);font-size:.86rem">Sin ventas.</p>';
+
+  document.getElementById('dash-financiero').innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px">
+    <div style="text-align:center;padding:16px;background:var(--crema);border-radius:8px"><div style="font-size:.7rem;color:var(--gris);text-transform:uppercase">Total Gastos</div><div style="font-family:'Oswald',sans-serif;font-size:1.4rem;color:var(--rojo);margin:6px 0">${fmtBs(totGas)}</div><div style="font-size:.8rem;color:var(--gris)">${fmtUSD(totGas/TC)}</div></div>
+    <div style="text-align:center;padding:16px;background:var(--crema);border-radius:8px"><div style="font-size:.7rem;color:var(--gris);text-transform:uppercase">Total Ingresos</div><div style="font-family:'Oswald',sans-serif;font-size:1.4rem;color:var(--azul);margin:6px 0">${fmtBs(totVen)}</div><div style="font-size:.8rem;color:var(--gris)">${fmtUSD(totVen/TC)}</div></div>
+    <div style="text-align:center;padding:16px;background:${res>=0?'#dcfce7':'#fee2e2'};border-radius:8px;border:2px solid ${res>=0?'#86efac':'#fca5a5'}"><div style="font-size:.7rem;color:var(--gris);text-transform:uppercase">Resultado Neto</div><div style="font-family:'Oswald',sans-serif;font-size:1.5rem;color:${res>=0?'#166534':'#991b1b'};margin:6px 0">${fmtBs(res)}</div><div style="font-size:.8rem;color:var(--gris)">${fmtUSD(res/TC)} · ${res>=0?'📈 Ganancia':'📉 Pérdida'}</div></div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// BADGES / DATALIST
+// ═══════════════════════════════════════════════════════════
+function actualizarBadges(){
+  document.getElementById('nb-mat').textContent=db.maternidad.length;
+  document.getElementById('nb-rec').textContent=db.recria.filter(r=>r.estado==='activo').length;
+  document.getElementById('nb-pes').textContent=db.pesos.length;
+  document.getElementById('nb-gas').textContent=db.gastos.length;
+  document.getElementById('nb-ven').textContent=db.ventas.length;
+}
+function actualizarDatalist(){
+  const codes=[...new Set(db.recria.map(r=>r.codigo))];
+  ['lista-animales','lista-animales2'].forEach(id=>{ const dl=document.getElementById(id); if(dl) dl.innerHTML=codes.map(c=>`<option value="${c}">`).join(''); });
+}
+
+// ═══════════════════════════════════════════════════════════
+// CSV
+// ═══════════════════════════════════════════════════════════
+function exportarCSV(tabla){
+  const datos=db[tabla]; if(!datos.length){ alert('Sin datos'); return; }
+  const keys=Object.keys(datos[0]).filter(k=>k!=='id');
+  const csv=[keys.join(','),...datos.map(r=>keys.map(k=>'"'+(r[k]||'').toString().replace(/"/g,'""')+'"').join(','))].join('\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'})); a.download=`losrosales_${tabla}.csv`; a.click();
+}
+
+// ═══════════════════════════════════════════════════════════
+
+// ─── CALCULAR EDAD DESDE FECHA DE PARTO ───
+function calcEdad(fechaParto){
+  if(!fechaParto) return {texto:'—', meses:0, dias:0};
+  const hoyD = new Date();
+  const parto = new Date(fechaParto);
+  if(isNaN(parto)) return {texto:'—', meses:0, dias:0};
+
+  let meses = (hoyD.getFullYear() - parto.getFullYear()) * 12 + (hoyD.getMonth() - parto.getMonth());
+  let diasExtra = hoyD.getDate() - parto.getDate();
+  if(diasExtra < 0){
+    meses--;
+    // días del mes anterior
+    const mesAnt = new Date(hoyD.getFullYear(), hoyD.getMonth(), 0);
+    diasExtra += mesAnt.getDate();
+  }
+  if(meses < 0){ meses=0; diasExtra=0; }
+
+  let texto = '';
+  if(meses === 0 && diasExtra === 0) texto = 'Recién nacido';
+  else if(meses === 0) texto = diasExtra + ' día' + (diasExtra!==1?'s':'');
+  else if(diasExtra === 0) texto = meses + ' mes' + (meses!==1?'es':'');
+  else texto = meses + ' mes' + (meses!==1?'es':'') + ' y ' + diasExtra + ' día' + (diasExtra!==1?'s':'');
+
+  return {texto, meses, dias: diasExtra};
+}
+
+// HELPER: info fields HTML
+// ═══════════════════════════════════════════════════════════
+function infoFields(arr){ return arr.map(x=>`<div class="info-field"><span>${x.l}</span><strong>${x.v}</strong></div>`).join(''); }
+
+// ═══════════════════════════════════════════════════════════
+// RENDER ALL
+// ═══════════════════════════════════════════════════════════
+function renderTablas(){ renderTablaMaternidad(); renderTablaRecria(); renderTablaPesos(); renderTablaGastos(); renderTablaVentas(); }
+
+function fechaTopbar(){
+  const d=new Date(); const dd=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb']; const mm=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  document.getElementById('chip-fecha').textContent=`${dd[d.getDay()]} ${d.getDate()} ${mm[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// AUTH — LOGIN / LOGOUT / REGISTRO
+// ═══════════════════════════════════════════════════════════
+let _loginMode = 'ingresar';
+
+function loginTab(mode, btn){
+  _loginMode = mode;
+  document.querySelectorAll('.login-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const esReg = mode === 'registrar';
+  document.getElementById('login-pass2-wrap').style.display = esReg ? '' : 'none';
+  document.getElementById('btn-login-action').textContent = esReg ? 'Crear cuenta' : 'Ingresar al sistema';
+  document.getElementById('login-error').style.display = 'none';
+  document.getElementById('login-ok').style.display = 'none';
+}
+
+function mostrarLoginError(msg){
+  const el = document.getElementById('login-error');
+  el.textContent = msg; el.style.display = 'block';
+  document.getElementById('login-ok').style.display = 'none';
+}
+function mostrarLoginOk(msg){
+  const el = document.getElementById('login-ok');
+  el.textContent = msg; el.style.display = 'block';
+  document.getElementById('login-error').style.display = 'none';
+}
+
+async function doLogin(){
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  if(!email || !pass){ mostrarLoginError('Complete el correo y la contraseña'); return; }
+
+  const btn = document.getElementById('btn-login-action');
+  const textoOrig = btn.textContent;
+  btn.textContent = '⏳ Procesando...'; btn.disabled = true;
+
+  try{
+    if(_loginMode === 'registrar'){
+      const pass2 = document.getElementById('login-pass2').value;
+      if(pass !== pass2){ mostrarLoginError('Las contraseñas no coinciden'); btn.disabled=false; btn.textContent=textoOrig; return; }
+      if(pass.length < 6){ mostrarLoginError('La contraseña debe tener al menos 6 caracteres'); btn.disabled=false; btn.textContent=textoOrig; return; }
+      await window._fbFns.createUserWithEmailAndPassword(window._fbAuth, email, pass);
+    } else {
+      await window._fbFns.signInWithEmailAndPassword(window._fbAuth, email, pass);
+    }
+  } catch(e){
+    const msgs = {
+      'auth/user-not-found':       'No existe una cuenta con ese correo.',
+      'auth/wrong-password':       'Contraseña incorrecta.',
+      'auth/invalid-email':        'El formato del correo no es válido.',
+      'auth/email-already-in-use': 'Ya existe una cuenta con ese correo.',
+      'auth/too-many-requests':    'Demasiados intentos. Espere unos minutos.',
+      'auth/invalid-credential':   'Correo o contraseña incorrectos.',
+      'auth/network-request-failed':'Sin conexión a internet.'
+    };
+    mostrarLoginError(msgs[e.code] || 'Error: ' + e.message);
+    btn.disabled = false; btn.textContent = textoOrig;
+  }
+}
+
+async function doGoogleLogin(){
+  try{
+    const provider = new window._fbFns.GoogleAuthProvider();
+    // Usar redirect (más compatible con GitHub Pages y móviles)
+    await window._fbFns.signInWithRedirect(window._fbAuth, provider);
+  } catch(e){
+    // Fallback: intentar popup
+    try{
+      const provider = new window._fbFns.GoogleAuthProvider();
+      await window._fbFns.signInWithPopup(window._fbAuth, provider);
+    } catch(e2){
+      mostrarLoginError('Error Google: ' + e2.message);
+    }
+  }
+}
+
+async function doLogout(){
+  if(!confirm('¿Cerrar sesión?')) return;
+  try{
+    await window._fbFns.signOut(window._fbAuth);
+  } catch(e){
+    console.warn('Logout error:', e.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// INIT (sin llamar _iniciarApp — eso lo hace onAuthStateChanged)
+// ═══════════════════════════════════════════════════════════
+document.getElementById('excel-file-input').addEventListener('change', function(){ if(this.files[0]) handleExcelFile(this.files[0]); });
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') cerrarPDFModal(); });
+fechaTopbar();
+</script>
+</div><!-- /#app-wrapper -->
+</body>
+</html>
