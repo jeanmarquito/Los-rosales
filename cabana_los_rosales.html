@@ -883,26 +883,30 @@ function cargarDB(){
 }
 
 async function guardarDB(){
-  // Guardar siempre en localStorage (offline backup)
-  try{ localStorage.setItem('lr_db2',JSON.stringify(db)); }catch(e){}
-  // Si hay usuario Firebase, guardar en Firestore
+  // Guardar en Firestore vinculado al usuario actual
   if(window._fbUser && window._fbDb && window._fbFns){
     try{
       const { doc, setDoc } = window._fbFns;
       const uid = window._fbUser.uid;
       const ref = doc(window._fbDb, 'usuarios', uid, 'datos', 'principal');
       await setDoc(ref, { ...db, tc: TC, updatedAt: new Date().toISOString() });
+      // Guardar TC con clave única por usuario
+      localStorage.setItem('lr_tc_' + uid, TC);
     } catch(e){ console.warn('Firebase save error:', e.message); }
   }
 }
 
 window._iniciarApp = async function(uid){
+  // Limpiar DB en memoria — cada usuario empieza limpio
+  db = { maternidad:[], recria:[], pesos:[], gastos:[], ventas:[] };
+
   if(window._fbDb && window._fbFns){
     try{
       const { doc, getDoc } = window._fbFns;
       const ref  = doc(window._fbDb, 'usuarios', uid, 'datos', 'principal');
       const snap = await getDoc(ref);
       if(snap.exists()){
+        // Usuario existente: cargar SUS datos de Firestore
         const data = snap.data();
         if(data.maternidad) db.maternidad = data.maternidad;
         if(data.recria)     db.recria     = data.recria;
@@ -910,26 +914,18 @@ window._iniciarApp = async function(uid){
         if(data.gastos)     db.gastos     = data.gastos;
         if(data.ventas)     db.ventas     = data.ventas;
         if(data.tc)         TC            = data.tc;
-        // Sincronizar también en localStorage
-        localStorage.setItem('lr_db2', JSON.stringify(db));
-        localStorage.setItem('lr_tc', TC);
-      } else {
-        // Primera vez: migrar datos locales a Firebase
-        const localRaw = localStorage.getItem('lr_db2');
-        if(localRaw){
-          const local = JSON.parse(localRaw);
-          Object.assign(db, local);
-          await guardarDB(); // subir a Firebase
-          console.log('Datos locales migrados a Firebase');
-        }
       }
+      // Si no existe en Firestore: usuario nuevo → base de datos vacía (no migrar localStorage)
     } catch(e){
       console.warn('Firebase load error:', e.message);
-      cargarDB(); // fallback local
     }
-  } else {
-    cargarDB();
   }
+
+  // Guardar TC por usuario en localStorage con clave única por uid
+  const tcKey = 'lr_tc_' + uid;
+  const savedTC = localStorage.getItem(tcKey);
+  if(savedTC) TC = parseFloat(savedTC);
+
   document.getElementById('tc-input').value = TC;
   document.getElementById('tc-display').textContent = TC.toFixed(2);
   ['m-fecha','r-fecha','p-fecha','g-fecha','vb-fecha','vp-fecha','rm-fecha','rc-fecha','dest-fecha']
