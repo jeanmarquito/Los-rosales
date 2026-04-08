@@ -235,7 +235,8 @@ tbody td{padding:9px 12px;vertical-align:middle}
 import { initializeApp }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-         signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup }
+         signOut, onAuthStateChanged, GoogleAuthProvider,
+         signInWithPopup, signInWithRedirect, getRedirectResult }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -263,10 +264,28 @@ window._fbFns  = {
   onAuthStateChanged,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   doc,
   setDoc,
   getDoc
 };
+
+// Manejar resultado de redirect de Google (GitHub Pages)
+getRedirectResult(auth).then(result => {
+  if (result && result.user) {
+    console.log('Google redirect login OK:', result.user.email);
+  }
+}).catch(err => {
+  if (err.code !== 'auth/no-current-user') {
+    console.warn('Redirect error:', err.message);
+    // Mostrar error en pantalla
+    setTimeout(()=>{
+      const el = document.getElementById('login-error');
+      if(el){ el.textContent = 'Error Google: ' + err.message; el.style.display='block'; }
+    }, 1000);
+  }
+});
 
 // Observer: controla qué pantalla mostrar
 onAuthStateChanged(auth, user => {
@@ -2082,6 +2101,92 @@ function renderTablas(){ renderTablaMaternidad(); renderTablaRecria(); renderTab
 function fechaTopbar(){
   const d=new Date(); const dd=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb']; const mm=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
   document.getElementById('chip-fecha').textContent=`${dd[d.getDay()]} ${d.getDate()} ${mm[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// AUTH — LOGIN / LOGOUT / REGISTRO
+// ═══════════════════════════════════════════════════════════
+let _loginMode = 'ingresar';
+
+function loginTab(mode, btn){
+  _loginMode = mode;
+  document.querySelectorAll('.login-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const esReg = mode === 'registrar';
+  document.getElementById('login-pass2-wrap').style.display = esReg ? '' : 'none';
+  document.getElementById('btn-login-action').textContent = esReg ? 'Crear cuenta' : 'Ingresar al sistema';
+  document.getElementById('login-error').style.display = 'none';
+  document.getElementById('login-ok').style.display = 'none';
+}
+
+function mostrarLoginError(msg){
+  const el = document.getElementById('login-error');
+  el.textContent = msg; el.style.display = 'block';
+  document.getElementById('login-ok').style.display = 'none';
+}
+function mostrarLoginOk(msg){
+  const el = document.getElementById('login-ok');
+  el.textContent = msg; el.style.display = 'block';
+  document.getElementById('login-error').style.display = 'none';
+}
+
+async function doLogin(){
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  if(!email || !pass){ mostrarLoginError('Complete el correo y la contraseña'); return; }
+
+  const btn = document.getElementById('btn-login-action');
+  const textoOrig = btn.textContent;
+  btn.textContent = '⏳ Procesando...'; btn.disabled = true;
+
+  try{
+    if(_loginMode === 'registrar'){
+      const pass2 = document.getElementById('login-pass2').value;
+      if(pass !== pass2){ mostrarLoginError('Las contraseñas no coinciden'); btn.disabled=false; btn.textContent=textoOrig; return; }
+      if(pass.length < 6){ mostrarLoginError('La contraseña debe tener al menos 6 caracteres'); btn.disabled=false; btn.textContent=textoOrig; return; }
+      await window._fbFns.createUserWithEmailAndPassword(window._fbAuth, email, pass);
+    } else {
+      await window._fbFns.signInWithEmailAndPassword(window._fbAuth, email, pass);
+    }
+  } catch(e){
+    const msgs = {
+      'auth/user-not-found':       'No existe una cuenta con ese correo.',
+      'auth/wrong-password':       'Contraseña incorrecta.',
+      'auth/invalid-email':        'El formato del correo no es válido.',
+      'auth/email-already-in-use': 'Ya existe una cuenta con ese correo.',
+      'auth/too-many-requests':    'Demasiados intentos. Espere unos minutos.',
+      'auth/invalid-credential':   'Correo o contraseña incorrectos.',
+      'auth/network-request-failed':'Sin conexión a internet.'
+    };
+    mostrarLoginError(msgs[e.code] || 'Error: ' + e.message);
+    btn.disabled = false; btn.textContent = textoOrig;
+  }
+}
+
+async function doGoogleLogin(){
+  try{
+    const provider = new window._fbFns.GoogleAuthProvider();
+    // Usar redirect (más compatible con GitHub Pages y móviles)
+    await window._fbFns.signInWithRedirect(window._fbAuth, provider);
+  } catch(e){
+    // Fallback: intentar popup
+    try{
+      const provider = new window._fbFns.GoogleAuthProvider();
+      await window._fbFns.signInWithPopup(window._fbAuth, provider);
+    } catch(e2){
+      mostrarLoginError('Error Google: ' + e2.message);
+    }
+  }
+}
+
+async function doLogout(){
+  if(!confirm('¿Cerrar sesión?')) return;
+  try{
+    await window._fbFns.signOut(window._fbAuth);
+  } catch(e){
+    console.warn('Logout error:', e.message);
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
